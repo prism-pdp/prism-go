@@ -1,0 +1,11 @@
+services:
+  go-compiler:
+    build: .
+    image: dpduado/dpduado-go
+    volumes:
+      - .:/app
+
+networks:
+  default:
+    name: dpduado
+    external: true
