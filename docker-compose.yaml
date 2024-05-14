@@ -4,4 +4,7 @@ services:
     image: dpduado/dpduado-go
     volumes:
       - .:/app
+      - go-cache:/root/.cache/go-build
 
+volumes:
+  go-cache:
