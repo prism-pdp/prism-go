@@ -1,6 +1,6 @@
 services:
   go-compiler:
-    build: .
+    build: ./build
     image: dpduado/dpduado-go
     volumes:
       - .:/app

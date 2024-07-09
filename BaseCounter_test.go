@@ -1,4 +1,4 @@
-package sol
+package dpduado
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-module github.com/dpduado/dpduado-go
+module github.com/dpduado/dpduado
 
 go 1.22.2
 

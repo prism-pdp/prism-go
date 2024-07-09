@@ -7,7 +7,7 @@ docker-run:
 	docker compose run -it --rm go-compiler $(CMD)
 
 test:
-	make docker-run CMD='go test ./sol'
+	make docker-run CMD='go test'
 
 shell:
 	make docker-run CMD='/bin/bash'
