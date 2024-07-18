@@ -1,13 +1,12 @@
+IMAGE_NAME = dpduado-go
+
 .PHONY: test
 
-docker-build:
-	docker compose build go-compiler
-
-docker-run:
-	docker compose run -it --rm go-compiler $(CMD)
-
-test:
-	make docker-run CMD='go test'
+build-img:
+	docker build -t $(IMAGE_NAME) .
 
 shell:
-	make docker-run CMD='/bin/bash'
+	docker run -it --rm --volume .:/app --entrypoint bash $(IMAGE_NAME)
+
+test:
+	docker run -it --rm --volume .:/app $(IMAGE_NAME) test
