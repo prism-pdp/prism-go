@@ -8,6 +8,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.2.0 // indirect
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/Nik-U/pbc v0.0.0-20181205041846-3e516ca0c5d6 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.1 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.21.2 // indirect
