@@ -7,17 +7,22 @@ import (
 )
 
 func TestPairingKey(t * testing.T) {
+	// Generate Param
 	var param PairingParam
-	var key1 PairingKey
-	var key2 PairingKey
-
 	param.Gen()
+
+	// Generate and save key
+	var key1 PairingKey
 	key1.Gen(&param)
 	assert.NotNil(t, key1.PrivateKey)
 	assert.NotNil(t, key1.PublicKey)
 	key1.Save("/tmp/key")
 
+	// Load the saved key
+	var key2 PairingKey
 	key2.Load("/tmp/key", &param)
+
+	// Compare keys
 	assert.Equal(t, key1.PrivateKey.Bytes(), key2.PrivateKey.Bytes())
 	assert.Equal(t, key1.PublicKey.Bytes(), key2.PublicKey.Bytes())
 }
