@@ -6,7 +6,7 @@ build-img:
 	docker build -t $(IMAGE_NAME) .
 
 shell:
-	docker run -it --rm --volume .:/app --entrypoint bash $(IMAGE_NAME)
+	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build --entrypoint bash $(IMAGE_NAME)
 
 test:
-	docker run -it --rm --volume .:/app $(IMAGE_NAME) test
+	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test ./xz21
