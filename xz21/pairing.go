@@ -31,6 +31,24 @@ func (this *PairingParam) ToString() PairingParamStr {
 	}
 }
 
+func (this *PairingParam) FromString(_string string) {
+	var paramStr PairingParamStr
+	var err error
+
+	err = json.Unmarshal([]byte(_string), &paramStr)
+	if err != nil { panic(err) }
+
+	this.Params, err = pbc.NewParamsFromString(paramStr.Params)
+	if err != nil { panic(err) }
+
+	this.Pairing = this.Params.NewPairing()
+
+	tmpG, err := base64.StdEncoding.DecodeString(paramStr.G)
+	if err != nil { panic(err) }
+
+	this.G = this.Pairing.NewG1().SetBytes(tmpG)
+}
+
 func (this *PairingParam) Save(_path string) {
 	tmp1 := this.ToString()
 
@@ -46,20 +64,8 @@ func (this *PairingParam) Save(_path string) {
 }
 
 func (this *PairingParam) Load(_path string) {
-	tmp1, err := os.ReadFile(_path)
+	tmp, err := os.ReadFile(_path)
 	if err != nil { panic(err) }
 
-	var paramStr PairingParamStr
-	err = json.Unmarshal(tmp1, &paramStr)
-	if err != nil { panic(err) }
-
-	this.Params, err = pbc.NewParamsFromString(paramStr.Params)
-	if err != nil { panic(err) }
-
-	this.Pairing = this.Params.NewPairing()
-
-	tmpG, err := base64.StdEncoding.DecodeString(paramStr.G)
-	if err != nil { panic(err) }
-
-	this.G = this.Pairing.NewG1().SetBytes(tmpG)
+	this.FromString(string(tmp))
 }
