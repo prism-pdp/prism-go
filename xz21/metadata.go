@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
-	"math/big"
 	"slices"
 
 	"github.com/Nik-U/pbc" // v0.0.0-20181205041846-3e516ca0c5d6
@@ -42,6 +41,7 @@ func SplitData(_data []byte, _chunkSize int) ([][]byte, error) {
 	return splitedData, nil
 }
 
+// https://github.com/es3ku/z22m2azuma/blob/main/user/src/interfaces/crypt/content.go#L23
 func GenMetadata(_param *PairingParam, _key *PairingKey, _splitedData [][]byte) *Metadata {
 	numChunk := uint32(len(_splitedData))
 
@@ -73,8 +73,9 @@ func GenMetadata(_param *PairingParam, _key *PairingKey, _splitedData [][]byte) 
 func (this *Metadata) GenTag(_param *PairingParam, _key *PairingKey) {
 	for i := range this.Tag {
 		e1 := _param.SetFromHash(this.Hash[i])
-		e2 := _param.PowBig(_param.U, new(big.Int).SetBytes(this.Chunk[i]))
-		e3 := _param.Mul(e1, e2)
-		this.Tag[i] = _param.MulZn(e3, _key.PrivateKey)
+		e2 := _param.SetFromHash(this.Chunk[i])
+		e3 := _param.PowBig(_param.U, e2.X())
+		e4 := _param.Mul(e1, e3)
+		this.Tag[i] = _param.PowZn(e4, _key.PrivateKey)
 	}
 }

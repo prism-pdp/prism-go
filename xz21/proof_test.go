@@ -1,12 +1,11 @@
 package xz21
 
 import (
-	"fmt"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNow(t *testing.T) {
+func TestProofGen(t *testing.T) {
 	data := []byte{
 		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
 		10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -33,8 +32,4 @@ func TestNow(t *testing.T) {
 	proof.Gen(&param, &chal, metadata)
 	assert.Equal(t, len(proof.A), int(chal.C))
 	assert.Equal(t, len(proof.V), int(chal.C))
-
-	assert.NotNil(t, nil)
-	fmt.Println(chal.K1.BigInt())
-	fmt.Println(proof)
 }

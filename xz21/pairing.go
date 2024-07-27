@@ -90,6 +90,10 @@ func (this *PairingParam) PowBig(_target *pbc.Element, _i *big.Int) *pbc.Element
 	return this.Pairing.NewG1().PowBig(_target, _i)
 }
 
+func (this *PairingParam) PowZn(_target, _i *pbc.Element) *pbc.Element {
+	return this.Pairing.NewG1().PowZn(_target, _i)
+}
+
 func (this *PairingParam) Mul(_x, _i *pbc.Element) *pbc.Element {
 	return this.Pairing.NewG1().Mul(_x, _i)
 }
