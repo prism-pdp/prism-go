@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestX2(t *testing.T) {
+func TestPdp(t *testing.T) {
 	data := []byte{
 		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
 		10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -20,7 +20,12 @@ func TestX2(t *testing.T) {
 	var key PairingKey
 	key.Gen(&param)
 
-	metadata, err := Upload(&param, &key, data, 10)
-	assert.NoError(t, err)
-	assert.NotNil(t, metadata)
+	chunk, _ := SplitData(data, 10)
+	meta := GenMetadata(&param, &key, chunk)
+
+	chal := GenChal(&param, uint32(meta.Size))
+	proof := GenProof(&param, chal, chunk)
+	result := VerifyProof(&param, meta, chal, proof, key.PublicKey)
+
+	assert.True(t, result)
 }
