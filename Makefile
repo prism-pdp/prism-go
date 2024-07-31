@@ -9,7 +9,7 @@ shell:
 	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build --entrypoint bash $(IMAGE_NAME)
 
 test:
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test ./xz21 -run TestNow
+	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test ./xz21
 
 test1:
 	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) clean -testcache

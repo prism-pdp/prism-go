@@ -24,7 +24,7 @@ func TestGenMetadata(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, len(chunk), 6)
 
-	metadata := GenMetadata(&param, &key, chunk)
+	metadata := GenMetadata(&param, key.PrivateKey, chunk)
 	assert.Equal(t, metadata.Size, uint32(6))
 	assert.Equal(t, len(metadata.Hash), 6)
 	assert.Equal(t, len(metadata.Tags), 6)

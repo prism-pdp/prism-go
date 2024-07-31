@@ -60,7 +60,7 @@ func HashChunk(_chunk [][]byte) [][]byte {
 	return hash
 }
 
-func GenMetadata(_param *PairingParam, _key *PairingKey, _chunk [][]byte) *Metadata {
+func GenMetadata(_param *PairingParam, _privKey *pbc.Element, _chunk [][]byte) *Metadata {
 
 	meta := new(Metadata)
 	meta.Size = uint32(len(_chunk))
@@ -72,7 +72,7 @@ func GenMetadata(_param *PairingParam, _key *PairingKey, _chunk [][]byte) *Metad
 		e2 := _param.SetFromHash(_chunk[i])
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
-		meta.Tags[i] = _param.PowZn(e4, _key.PrivateKey)
+		meta.Tags[i] = _param.PowZn(e4, _privKey)
 	}
 
 	return meta

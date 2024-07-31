@@ -21,7 +21,7 @@ func TestPdp(t *testing.T) {
 	key.Gen(&param)
 
 	chunk, _ := SplitData(data, 10)
-	meta := GenMetadata(&param, &key, chunk)
+	meta := GenMetadata(&param, key.PrivateKey, chunk)
 
 	chal := GenChal(&param, uint32(meta.Size))
 	proof := GenProof(&param, chal, chunk)
