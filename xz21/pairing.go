@@ -57,6 +57,14 @@ func (this *PairingParam) FromString(_string string) {
 	this.U = this.Pairing.NewG1().SetBytes(tmpU)
 }
 
+func (this *PairingParam) ToXZ21Para() *XZ21Para {
+	para := make(XZ21Para)
+	para.Pairing = this.Params.String()
+	para.U = this.U.Bytes()
+	para.G = this.G.Bytes()
+	return para
+}
+
 func (this *PairingParam) Save(_path string) {
 	tmp1 := this.ToString()
 
