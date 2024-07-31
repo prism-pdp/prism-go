@@ -58,7 +58,7 @@ func (this *PairingParam) FromString(_string string) {
 }
 
 func (this *PairingParam) ToXZ21Para() *XZ21Para {
-	para := make(XZ21Para)
+	para := new(XZ21Para)
 	para.Pairing = this.Params.String()
 	para.U = this.U.Bytes()
 	para.G = this.G.Bytes()
