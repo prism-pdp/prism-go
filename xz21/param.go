@@ -58,10 +58,24 @@ func (this *PairingParam) FromString(_string string) {
 }
 
 func (this *PairingParam) ToXZ21Para() *XZ21Para {
-	para := new(XZ21Para)
-	para.Pairing = this.Params.String()
-	para.U = this.U.Bytes()
-	para.G = this.G.Bytes()
+	xz21Para := new(XZ21Para)
+	xz21Para.Param = this.Params.String()
+	xz21Para.U = this.U.Bytes()
+	xz21Para.G = this.G.Bytes()
+	return xz21Para
+}
+
+func GenParamFromXZ21Para(_xz21Para *XZ21Para) *PairingParam {
+	var err error
+
+	para := new(PairingParam)
+	para.Params, err = pbc.NewParamsFromString(_xz21Para.Param)
+	if err != nil { panic(err) }
+
+	para.Pairing = pbc.NewPairing(para.Params)
+	para.G = para.Pairing.NewG1().SetBytes(_xz21Para.G)
+	para.U = para.Pairing.NewG1().SetBytes(_xz21Para.U)
+
 	return para
 }
 
