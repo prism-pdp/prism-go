@@ -1,7 +1,6 @@
 package xz21
 
 import (
-	"fmt"
 	"encoding/base64"
 	"encoding/json"
 	"os"
@@ -54,7 +53,6 @@ func (this *PairingKey) Load(_path string, _param *PairingParam) {
 
 	bytesPrivateKey, err := base64.StdEncoding.DecodeString(keyStr.PrivateKey)
 	if err != nil { panic(err) }
-	fmt.Println(this)
 	this.PrivateKey = _param.Pairing.NewZr().SetBytes(bytesPrivateKey)
 
 	bytesPublicKey, err  := base64.StdEncoding.DecodeString(keyStr.PublicKey)
