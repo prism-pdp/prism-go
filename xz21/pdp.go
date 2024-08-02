@@ -44,12 +44,13 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunk [][]byte) *pbc.Element {
 }
 
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt.go#L98
-func VerifyProof(_param *PairingParam, _meta *Metadata, _chal *Chal, _proof *pbc.Element, _pubKey *pbc.Element) bool {
+func VerifyProof(_param *PairingParam, _tags []*pbc.Element, _hashChunks [][]byte, _chal *Chal, _proof *pbc.Element, _pubKey *pbc.Element) bool {
 
-	tag := _param.Pairing.NewG1().Set1()
-	m   := _param.Pairing.NewG1().Set1()
+	left  := _param.Pairing.NewG1().Set1()
+	right := _param.Pairing.NewG1().Set1()
+	n := uint32(len(_tags))
 
-	setA := GenA(_chal.K1, _chal.C, _meta.Size)
+	setA := GenA(_chal.K1, _chal.C, n)
 	setV := GenV(_chal.K2, _chal.C, _param)
 
 	for i := uint32(0); i < _chal.C; i++ {
@@ -57,21 +58,21 @@ func VerifyProof(_param *PairingParam, _meta *Metadata, _chal *Chal, _proof *pbc
 		v := setV[i]
 
 		// Left
-		t1 := _meta.Tags[a]
+		t1 := _tags[a]
 		t2 := _param.PowZn(t1, v)
-		tag = _param.Mul(tag, t2)
+		left = _param.Mul(left, t2)
 
 		// Right
-		m1 := _param.SetFromHash(_meta.Hash[a])
+		m1 := _param.SetFromHash(_hashChunks[a])
 		m2 := _param.PowZn(m1, v)
-		m   = _param.Mul(m, m2)
+		right  = _param.Mul(right, m2)
 	}
 
-	u1  := _param.PowZn(_param.U, _proof)
-	right_hand := _param.Mul(m, u1)
+	u := _param.PowZn(_param.U, _proof)
+	right = _param.Mul(right, u)
 
-	lhs := _param.Pairing.NewGT().Pair(tag, _param.G)
-	rhs := _param.Pairing.NewGT().Pair(right_hand, _pubKey)
+	lhs := _param.Pairing.NewGT().Pair(left, _param.G)
+	rhs := _param.Pairing.NewGT().Pair(right, _pubKey)
 
 	return lhs.Equals(rhs)
 }

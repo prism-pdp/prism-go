@@ -7,14 +7,8 @@ import (
 	"math"
 	"slices"
 
-	"github.com/Nik-U/pbc" // v0.0.0-20181205041846-3e516ca0c5d6
+	"github.com/Nik-U/pbc"
 )
-
-type Metadata struct {
-	Size uint32
-	Hash [][]byte
-	Tags []*pbc.Element
-}
 
 func SplitData(_data []byte, _chunkSize uint32) ([][]byte, error) {
 	if _chunkSize <= 0 { return nil, fmt.Errorf("invalid split num: %d", _chunkSize) }
@@ -42,8 +36,8 @@ func SplitData(_data []byte, _chunkSize uint32) ([][]byte, error) {
 }
 
 // https://github.com/es3ku/z22m2azuma/blob/main/user/src/interfaces/crypt/content.go#L23
-func HashChunk(_chunk [][]byte) [][]byte {
-	numChunk := uint32(len(_chunk))
+func HashChunks(_chunks [][]byte) [][]byte {
+	numChunk := uint32(len(_chunks))
 	hash := make([][]byte, numChunk)
 
 	for i := uint32(0); i < numChunk; i++ {
@@ -53,27 +47,26 @@ func HashChunk(_chunk [][]byte) [][]byte {
 	b := make([]byte, 4)
 	for i := uint32(0); i < numChunk; i++ {
 		binary.LittleEndian.PutUint32(b, i)
-		h := sha256.Sum256(slices.Concat(_chunk[i], b))
+		h := sha256.Sum256(slices.Concat(_chunks[i], b))
 		copy(hash[i], h[:])
 	}
 
 	return hash
 }
 
-func GenMetadata(_param *PairingParam, _privKey *pbc.Element, _chunk [][]byte) *Metadata {
+func GenTags(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) ([]*pbc.Element, [][]byte, uint32) {
 
-	meta := new(Metadata)
-	meta.Size = uint32(len(_chunk))
-	meta.Hash = HashChunk(_chunk)
-	meta.Tags = make([]*pbc.Element, meta.Size)
+	numTags := uint32(len(_chunks))
+	hashChunks := HashChunks(_chunks)
+	tags := make([]*pbc.Element, numTags)
 
-	for i := uint32(0); i < meta.Size; i++ {
-		e1 := _param.SetFromHash(meta.Hash[i])
-		e2 := _param.SetFromHash(_chunk[i])
+	for i := uint32(0); i < numTags; i++ {
+		e1 := _param.SetFromHash(hashChunks[i])
+		e2 := _param.SetFromHash(_chunks[i])
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
-		meta.Tags[i] = _param.PowZn(e4, _privKey)
+		tags[i] = _param.PowZn(e4, _privKey)
 	}
 
-	return meta
+	return tags, hashChunks, numTags
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGenMetadata(t *testing.T) {
+func TestGenTags(t *testing.T) {
 	data := []byte{
 		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
 		10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -24,8 +24,8 @@ func TestGenMetadata(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, len(chunk), 6)
 
-	metadata := GenMetadata(&param, key.PrivateKey, chunk)
-	assert.Equal(t, metadata.Size, uint32(6))
-	assert.Equal(t, len(metadata.Hash), 6)
-	assert.Equal(t, len(metadata.Tags), 6)
+	tags, hashChunks, numTags := GenTags(&param, key.PrivateKey, chunk)
+	assert.Equal(t, numTags, uint32(6))
+	assert.Equal(t, len(hashChunks), 6)
+	assert.Equal(t, len(tags), 6)
 }

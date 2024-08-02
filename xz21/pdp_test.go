@@ -21,11 +21,11 @@ func TestPdp(t *testing.T) {
 	key.Gen(&param)
 
 	chunk, _ := SplitData(data, 10)
-	meta := GenMetadata(&param, key.PrivateKey, chunk)
+	tags, hashChunks, numTags := GenTags(&param, key.PrivateKey, chunk)
 
-	chal := GenChal(&param, uint32(meta.Size))
+	chal := GenChal(&param, numTags)
 	proof := GenProof(&param, chal, chunk)
-	result := VerifyProof(&param, meta, chal, proof, key.PublicKey)
+	result := VerifyProof(&param, tags, hashChunks, chal, proof, key.PublicKey)
 
 	assert.True(t, result)
 }

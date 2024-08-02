@@ -1,7 +1,6 @@
 package xz21
 
 import (
-	"fmt"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
