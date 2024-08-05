@@ -15,7 +15,7 @@ type Chal struct {
 
 func GenChal(_param *PairingParam, _chunkNum uint32) *Chal {
 	chal := new(Chal)
-	chal.C = (rand.Uint32() % _chunkNum)
+	chal.C = (rand.Uint32() % _chunkNum) + 1
 	chal.K1 = _param.Pairing.NewZr().Rand()
 	chal.K2 = _param.Pairing.NewZr().Rand()
 	return chal
