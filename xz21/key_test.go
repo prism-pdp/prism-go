@@ -19,8 +19,7 @@ func TestPairingKey(t * testing.T) {
 	key1.Save("/tmp/key")
 
 	// Load the saved key
-	var key2 PairingKey
-	key2.Load("/tmp/key", &param)
+	key2 := LoadPairingKeyFromFile("/tmp/key", &param)
 
 	// Compare keys
 	assert.Equal(t, key1.PrivateKey.Bytes(), key2.PrivateKey.Bytes())
