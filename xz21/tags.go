@@ -3,33 +3,27 @@ package xz21
 import (
 	"crypto/sha256"
 	"encoding/binary"
-	"fmt"
-	"math"
 	"slices"
 
 	"github.com/Nik-U/pbc"
 )
 
-func SplitData(_data []byte, _chunkSize uint32) ([][]byte, error) {
-	if _chunkSize <= 0 { return nil, fmt.Errorf("invalid split num: %d", _chunkSize) }
-
+func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
 	var chunk [][]byte
 	dataSize := uint32(len(_data))
-	rows := uint32(math.Ceil(float64(dataSize) / float64(_chunkSize)))
 
-	var s, e, processedSize uint32
+	chunkSize  := dataSize / _chunkNum
+	chunkSizeR := dataSize % _chunkNum
 
-	processedSize = 0
-	for i := uint32(0); i < rows; i++ {
-		if i == (rows - 1) {
-			s = i * _chunkSize
-			e = s + (dataSize - processedSize)
-		} else {
-			s = i * _chunkSize
-			e = s + _chunkSize
+	var s, e uint32
+
+	for i := uint32(0); i < _chunkNum; i++ {
+		s = i * chunkSize
+		e = s + chunkSize
+		if i == (_chunkNum - 1) {
+			e = e + chunkSizeR
 		}
 		chunk = append(chunk, _data[s:e])
-		processedSize += (e - s)
 	}
 
 	return chunk, nil

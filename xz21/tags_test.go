@@ -20,12 +20,12 @@ func TestGenTags(t *testing.T) {
 	var key PairingKey
 	key.Gen(&param)
 
-	chunk, err := SplitData(data, 10)
+	chunk, err := SplitData(data, 5)
 	assert.NoError(t, err)
-	assert.Equal(t, len(chunk), 6)
+	assert.Equal(t, len(chunk), 5)
 
 	tags, hashChunks, numTags := GenTags(&param, key.PrivateKey, chunk)
-	assert.Equal(t, numTags, uint32(6))
-	assert.Equal(t, len(hashChunks), 6)
-	assert.Equal(t, len(tags), 6)
+	assert.Equal(t, numTags, uint32(5))
+	assert.Equal(t, len(hashChunks), 5)
+	assert.Equal(t, len(tags), 5)
 }
