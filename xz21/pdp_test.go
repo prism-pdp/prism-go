@@ -20,7 +20,7 @@ func TestPdp(t *testing.T) {
 	var key PairingKey
 	key.Gen(&param)
 
-	chunk, _ := SplitData(data, 10)
+	chunk, _ := SplitData(data, 5)
 	tags, hashChunks, numTags := GenTags(&param, key.PrivateKey, chunk)
 
 	chal := GenChal(&param, numTags)
