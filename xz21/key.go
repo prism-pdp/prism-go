@@ -43,7 +43,21 @@ func (this *PairingKey) Save(_path string) {
 	if err != nil { panic(err) }
 }
 
-func (this *PairingKey) Load(_path string, _param *PairingParam) {
+func LoadPairingKey(_key *PairingKeyStr, _param *PairingParam) *PairingKey {
+	this := new(PairingKey)
+
+	bytesPrivateKey, err := base64.StdEncoding.DecodeString(_key.PrivateKey)
+	if err != nil { panic(err) }
+	this.PrivateKey = _param.Pairing.NewZr().SetBytes(bytesPrivateKey)
+
+	bytesPublicKey, err  := base64.StdEncoding.DecodeString(_key.PublicKey)
+	if err != nil { panic(err) }
+	this.PublicKey = _param.Pairing.NewG1().SetBytes(bytesPublicKey)
+
+	return this
+}
+
+func LoadPairingKeyFromFile(_path string, _param *PairingParam) *PairingKey {
 	tmp1, err := os.ReadFile(_path)
 	if err != nil { panic(err) }
 
@@ -51,11 +65,5 @@ func (this *PairingKey) Load(_path string, _param *PairingParam) {
 	err = json.Unmarshal(tmp1, &keyStr)
 	if err != nil { panic(err) }
 
-	bytesPrivateKey, err := base64.StdEncoding.DecodeString(keyStr.PrivateKey)
-	if err != nil { panic(err) }
-	this.PrivateKey = _param.Pairing.NewZr().SetBytes(bytesPrivateKey)
-
-	bytesPublicKey, err  := base64.StdEncoding.DecodeString(keyStr.PublicKey)
-	if err != nil { panic(err) }
-	this.PublicKey = _param.Pairing.NewG1().SetBytes(bytesPublicKey)
+	return LoadPairingKey(&keyStr, _param)
 }
