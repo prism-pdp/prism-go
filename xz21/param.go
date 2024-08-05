@@ -72,7 +72,7 @@ func GenParamFromXZ21Para(_xz21Para *XZ21Para) *PairingParam {
 	para.Params, err = pbc.NewParamsFromString(_xz21Para.Param)
 	if err != nil { panic(err) }
 
-	para.Pairing = pbc.NewPairing(para.Params)
+	para.Pairing = para.Params.NewPairing()
 	para.G = para.Pairing.NewG1().SetBytes(_xz21Para.G)
 	para.U = para.Pairing.NewG1().SetBytes(_xz21Para.U)
 
