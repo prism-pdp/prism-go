@@ -25,7 +25,7 @@ func GenPairingParam() PairingParam {
 
 func (this *PairingParam) ToXZ21Para() XZ21Para {
 	var xz21Para XZ21Para
-	xz21Para.Param = this.Params.String()
+	xz21Para.Params = this.Params.String()
 	xz21Para.U = this.U.Bytes()
 	xz21Para.G = this.G.Bytes()
 	return xz21Para
@@ -37,7 +37,7 @@ func GenParamFromXZ21Para(_xz21Para *XZ21Para) PairingParam {
 
 	if err != nil { panic(err) }
 
-	para.Params, err = pbc.NewParamsFromString(_xz21Para.Param)
+	para.Params, err = pbc.NewParamsFromString(_xz21Para.Params)
 	if err != nil { panic(err) }
 	para.Pairing = pbc.NewPairing(para.Params)
 	para.G = para.Pairing.NewG1().SetBytes(_xz21Para.G)
