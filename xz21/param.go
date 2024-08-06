@@ -60,20 +60,6 @@ func (this *PairingParam) Save(_path string) {
 	if err != nil { panic(err) }
 }
 
-func LoadPairingParam(_data []byte) PairingParam {
-	var xz21Para XZ21Para
-	err := json.Unmarshal(_data, &xz21Para)
-	if err != nil { panic(err) }
-	return GenParamFromXZ21Para(&xz21Para)
-}
-
-func LoadPairingParamFromFile(_path string) PairingParam {
-	tmp, err := os.ReadFile(_path)
-	if err != nil { panic(err) }
-
-	return LoadPairingParam(tmp)
-}
-
 func (this *PairingParam) SetFromHash(_hash []byte) *pbc.Element {
 	return this.Pairing.NewG1().SetFromHash(_hash)
 }
