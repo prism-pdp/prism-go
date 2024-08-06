@@ -27,13 +27,15 @@ func TestPdp(t *testing.T) {
 	}
 
 	// SU1 generates its own key.
-	var keySU1Data PairingKeyData
+	var pkDataSU1 PublicKeyData
+	var skDataSU1 PrivateKeyData
 	{
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Generate key pair
-		key := GenPairingKey(&param)
-		keySU1Data = key.Export()
+		pk, sk := GenPairingKey(&param)
+		pkDataSU1 = pk.Export()
+		skDataSU1 = sk.Export()
 	}
 
 	// =================================
@@ -45,10 +47,10 @@ func TestPdp(t *testing.T) {
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Read key from file
-		keySU := keySU1Data.Import(&param)
+		skSU1 := skDataSU1.Import(&param)
 		// Generate tags
 		chunk, _ := SplitData(data, 5)
-		tags, _, _ := GenTags(&param, keySU.PrivateKey, chunk)
+		tags, _, _ := GenTags(&param, skSU1.Key, chunk)
 		// Export data to be sent to SP
 		tagsData = tags.Export()
 	}
@@ -92,7 +94,7 @@ func TestPdp(t *testing.T) {
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Read data from file
-		keySU1 := keySU1Data.Import(&param)
+		pkSU1 := pkDataSU1.Import(&param)
 		chal := chalData.Import(&param)
 		tags := tagsData.Import(&param)
 		// Receive data from SU
@@ -100,7 +102,7 @@ func TestPdp(t *testing.T) {
 		// Verify proof
 		chunk, _ := SplitData(data, numTags)
 		hashChunks := HashChunks(chunk)
-		result = VerifyProof(&param, &tags, hashChunks, &chal, &proof, keySU1.PublicKey)
+		result = VerifyProof(&param, &tags, hashChunks, &chal, &proof, pkSU1.Key)
 	}
 
 	assert.True(t, result)
