@@ -6,6 +6,7 @@ import (
 )
 
 func TestPdp(t *testing.T) {
+	// Test data
 	data := []byte{
 		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
 		10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -15,55 +16,63 @@ func TestPdp(t *testing.T) {
 		50, 51, 52, 53,
 	}
 
-	// TPA
+	// =================================
+	// Setup Phase
+	// =================================
+	// TPA generates param for pairing.
 	var xz21Para XZ21Para
 	{
 		param := GenPairingParam()
 		xz21Para = param.ToXZ21Para()
 	}
 
-	// SU
-	var keyData PairingKeyData
+	// SU1 generates its own key.
+	var keySU1Data PairingKeyData
 	{
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Generate key pair
 		key := GenPairingKey(&param)
-		keyData = key.Export()
+		keySU1Data = key.Export()
 	}
 
-	// SU
-	var chunk [][]byte
-	var hashChunks [][]byte
+	// =================================
+	// Upload Phase (New File)
+	// =================================
+	// SU1 generates tags of data to be uploaded
 	var tagsData TagsData
-	var numTags uint32
 	{
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Read key from file
-		keySU := keyData.Import(&param)
+		keySU := keySU1Data.Import(&param)
 		// Generate tags
-		chunk, _ = SplitData(data, 5)
-		tags, hashChunksTmp, numTagsTmp := GenTags(&param, keySU.PrivateKey, chunk)
+		chunk, _ := SplitData(data, 5)
+		tags, _, _ := GenTags(&param, keySU.PrivateKey, chunk)
 		// Export data to be sent to SP
-		numTags = numTagsTmp
-		hashChunks = hashChunksTmp
 		tagsData = tags.Export()
-		keyData = keySU.Export()
 	}
 
-	// SP
+	// =================================
+	// Upload Phase (Dedup File)
+	// =================================
+	// SU2 requests SP to upload data.
+
+	// SP generates challenge for deduplication.
 	var chalData ChalData
+	var numTags uint32
 	{
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Generate challenge for deduplication
-		chal := GenChal(&param, numTags)
+		numTagsTmp := uint32(len(tagsData.Tags))
+		chal := GenChal(&param, numTagsTmp)
 		// Export data to be sent to SU
 		chalData = chal.Export()
+		numTags = numTagsTmp
 	}
 
-	// SU
+	// SU2 generates proof with data owned by itself.
 	var proofData ProofData
 	{
 		// Load param from Ethereum
@@ -71,24 +80,27 @@ func TestPdp(t *testing.T) {
 		// Receive chalData from SP
 		chal := chalData.Import(&param)
 		// Generate proof
-		proofSU := GenProof(&param, &chal, chunk)
+		chunk, _ := SplitData(data, numTags)
+		proof := GenProof(&param, &chal, chunk)
 		// Export data to be sent to SP
-		proofData = proofSU.Export()
+		proofData = proof.Export()
 	}
 
-	// SP
+	// SP verifies proof with tags and public key of SU1.
 	var result bool
 	{
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Read data from file
-		keySU := keyData.Import(&param)
+		keySU1 := keySU1Data.Import(&param)
 		chal := chalData.Import(&param)
 		tags := tagsData.Import(&param)
 		// Receive data from SU
 		proof := proofData.Import(&param)
 		// Verify proof
-		result = VerifyProof(&param, &tags, hashChunks, &chal, &proof, keySU.PublicKey)
+		chunk, _ := SplitData(data, numTags)
+		hashChunks := HashChunks(chunk)
+		result = VerifyProof(&param, &tags, hashChunks, &chal, &proof, keySU1.PublicKey)
 	}
 
 	assert.True(t, result)
