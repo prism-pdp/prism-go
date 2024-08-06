@@ -8,6 +8,32 @@ import (
 	"github.com/Nik-U/pbc"
 )
 
+type Tags struct {
+	Tags []*pbc.Element
+}
+
+type TagsData struct {
+	Tags [][]byte
+}
+
+func (this *Tags) Export() TagsData {
+	var data TagsData
+	data.Tags = make([][]byte, len(this.Tags))
+	for i, v := range this.Tags {
+		data.Tags[i] = v.Bytes()
+	}
+	return data
+}
+
+func (this *TagsData) Import(_param *PairingParam) Tags {
+	var obj Tags
+	obj.Tags = make([]*pbc.Element, len(this.Tags))
+	for i, v := range this.Tags {
+		obj.Tags[i] = _param.Pairing.NewG1().SetBytes(v)
+	}
+	return obj
+}
+
 func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
 	var chunk [][]byte
 	dataSize := uint32(len(_data))
@@ -48,18 +74,19 @@ func HashChunks(_chunks [][]byte) [][]byte {
 	return hash
 }
 
-func GenTags(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) ([]*pbc.Element, [][]byte, uint32) {
+func GenTags(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tags, [][]byte, uint32) {
 
 	numTags := uint32(len(_chunks))
 	hashChunks := HashChunks(_chunks)
-	tags := make([]*pbc.Element, numTags)
+	var tags Tags
+	tags.Tags = make([]*pbc.Element, numTags)
 
 	for i := uint32(0); i < numTags; i++ {
 		e1 := _param.SetFromHash(hashChunks[i])
 		e2 := _param.SetFromHash(_chunks[i])
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
-		tags[i] = _param.PowZn(e4, _privKey)
+		tags.Tags[i] = _param.PowZn(e4, _privKey)
 	}
 
 	return tags, hashChunks, numTags

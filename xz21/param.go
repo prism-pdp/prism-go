@@ -1,7 +1,6 @@
 package xz21
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"math/big"
 	"os"
@@ -15,64 +14,32 @@ type PairingParam struct {
 	U       *pbc.Element
 }
 
-type PairingParamStr struct {
-	Params string `json:params`
-	G      string `json:g`
-	U      string `json:u`
+func GenPairingParam() PairingParam {
+	var obj PairingParam
+	obj.Params = pbc.GenerateA(uint32(160), uint32(512))
+	obj.Pairing = obj.Params.NewPairing()
+	obj.G = obj.Pairing.NewG1().Rand()
+	obj.U = obj.Pairing.NewG1().Rand()
+	return obj
 }
 
-func (this *PairingParam) Gen() {
-	this.Params = pbc.GenerateA(uint32(160), uint32(512))
-	this.Pairing = this.Params.NewPairing()
-	this.G = this.Pairing.NewG1().Rand()
-	this.U = this.Pairing.NewG1().Rand()
-}
-
-func (this *PairingParam) ToString() PairingParamStr {
-	return PairingParamStr{
-		Params: this.Params.String(),
-		G: base64.StdEncoding.EncodeToString(this.G.Bytes()),
-		U: base64.StdEncoding.EncodeToString(this.U.Bytes()),
-	}
-}
-
-func (this *PairingParam) FromString(_string string) {
-	var paramStr PairingParamStr
-	var err error
-
-	err = json.Unmarshal([]byte(_string), &paramStr)
-	if err != nil { panic(err) }
-
-	this.Params, err = pbc.NewParamsFromString(paramStr.Params)
-	if err != nil { panic(err) }
-
-	this.Pairing = this.Params.NewPairing()
-
-	tmpG, err := base64.StdEncoding.DecodeString(paramStr.G)
-	if err != nil { panic(err) }
-	this.G = this.Pairing.NewG1().SetBytes(tmpG)
-
-	tmpU, err := base64.StdEncoding.DecodeString(paramStr.U)
-	if err != nil { panic(err) }
-	this.U = this.Pairing.NewG1().SetBytes(tmpU)
-}
-
-func (this *PairingParam) ToXZ21Para() *XZ21Para {
-	xz21Para := new(XZ21Para)
+func (this *PairingParam) ToXZ21Para() XZ21Para {
+	var xz21Para XZ21Para
 	xz21Para.Param = this.Params.String()
 	xz21Para.U = this.U.Bytes()
 	xz21Para.G = this.G.Bytes()
 	return xz21Para
 }
 
-func GenParamFromXZ21Para(_xz21Para *XZ21Para) *PairingParam {
+func GenParamFromXZ21Para(_xz21Para *XZ21Para) PairingParam {
 	var err error
+	var para PairingParam
 
-	para := new(PairingParam)
-	para.Params, err = pbc.NewParamsFromString(_xz21Para.Param)
 	if err != nil { panic(err) }
 
-	para.Pairing = para.Params.NewPairing()
+	para.Params, err = pbc.NewParamsFromString(_xz21Para.Param)
+	if err != nil { panic(err) }
+	para.Pairing = pbc.NewPairing(para.Params)
 	para.G = para.Pairing.NewG1().SetBytes(_xz21Para.G)
 	para.U = para.Pairing.NewG1().SetBytes(_xz21Para.U)
 
@@ -80,9 +47,9 @@ func GenParamFromXZ21Para(_xz21Para *XZ21Para) *PairingParam {
 }
 
 func (this *PairingParam) Save(_path string) {
-	tmp1 := this.ToString()
+	tmp1 := this.ToXZ21Para()
 
-	tmp2, err := json.MarshalIndent(tmp1, "", "\t")
+	tmp2, err := json.MarshalIndent(&tmp1, "", "\t")
 	if err != nil { panic(err) }
 
 	f, err := os.Create(_path)
@@ -93,11 +60,18 @@ func (this *PairingParam) Save(_path string) {
 	if err != nil { panic(err) }
 }
 
-func (this *PairingParam) Load(_path string) {
+func LoadPairingParam(_data []byte) PairingParam {
+	var xz21Para XZ21Para
+	err := json.Unmarshal(_data, &xz21Para)
+	if err != nil { panic(err) }
+	return GenParamFromXZ21Para(&xz21Para)
+}
+
+func LoadPairingParamFromFile(_path string) PairingParam {
 	tmp, err := os.ReadFile(_path)
 	if err != nil { panic(err) }
 
-	this.FromString(string(tmp))
+	return LoadPairingParam(tmp)
 }
 
 func (this *PairingParam) SetFromHash(_hash []byte) *pbc.Element {
