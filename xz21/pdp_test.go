@@ -41,18 +41,18 @@ func TestPdp(t *testing.T) {
 	// =================================
 	// Upload Phase (New File)
 	// =================================
-	// SU1 generates tags of data to be uploaded
-	var tagsData TagsData
+	// SU1 generates tag of data to be uploaded
+	var tagData TagData
 	{
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Read key from file
 		skSU1 := skDataSU1.Import(&param)
-		// Generate tags
+		// Generate tag
 		chunk, _ := SplitData(data, 5)
-		tags, _, _ := GenTags(&param, skSU1.Key, chunk)
+		tag, _ := GenTag(&param, skSU1.Key, chunk)
 		// Export data to be sent to SP
-		tagsData = tags.Export()
+		tagData = tag.Export()
 	}
 
 	// =================================
@@ -62,16 +62,15 @@ func TestPdp(t *testing.T) {
 
 	// SP generates challenge for deduplication.
 	var chalData ChalData
-	var numTags uint32
+	var tagSize uint32
 	{
 		// Load param from Ethereum
 		param := GenParamFromXZ21Para(&xz21Para)
 		// Generate challenge for deduplication
-		numTagsTmp := uint32(len(tagsData.Tags))
-		chal := GenChal(&param, numTagsTmp)
+		chal := GenChal(&param, tagData.Size)
 		// Export data to be sent to SU
 		chalData = chal.Export()
-		numTags = numTagsTmp
+		tagSize = tagData.Size
 	}
 
 	// SU2 generates proof with data owned by itself.
@@ -82,13 +81,13 @@ func TestPdp(t *testing.T) {
 		// Receive chalData from SP
 		chal := chalData.Import(&param)
 		// Generate proof
-		chunk, _ := SplitData(data, numTags)
+		chunk, _ := SplitData(data, tagSize)
 		proof := GenProof(&param, &chal, chunk)
 		// Export data to be sent to SP
 		proofData = proof.Export()
 	}
 
-	// SP verifies proof with tags and public key of SU1.
+	// SP verifies proof with tag and public key of SU1.
 	var result bool
 	{
 		// Load param from Ethereum
@@ -96,13 +95,13 @@ func TestPdp(t *testing.T) {
 		// Read data from file
 		pkSU1 := pkDataSU1.Import(&param)
 		chal := chalData.Import(&param)
-		tags := tagsData.Import(&param)
+		tag := tagData.Import(&param)
 		// Receive data from SU
 		proof := proofData.Import(&param)
 		// Verify proof
-		chunk, _ := SplitData(data, numTags)
+		chunk, _ := SplitData(data, tag.Size)
 		hashChunks := HashChunks(chunk)
-		result = VerifyProof(&param, &tags, hashChunks, &chal, &proof, pkSU1.Key)
+		result = VerifyProof(&param, &tag, hashChunks, &chal, &proof, pkSU1.Key)
 	}
 
 	assert.True(t, result)
