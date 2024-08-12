@@ -5,6 +5,53 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestChal(t *testing.T) {
+	chunkNum := uint32(100)
+
+	param := GenPairingParam()
+	chal := GenChal(&param, chunkNum)
+	assert.LessOrEqual(t, chal.C, chunkNum)
+	assert.NotEqual(t, chal.C, uint32(0))
+
+	chalData1 := chal.Export()
+	chalBytes, err := chalData1.Encode()
+	assert.NoError(t, err)
+
+	chalData2, err := DecodeToChalData(chalBytes)
+	assert.NoError(t, err)
+
+	assert.Equal(t, chalData1.C, chalData2.C)
+	assert.Equal(t, chalData1.K1, chalData2.K1)
+	assert.Equal(t, chalData1.K2, chalData2.K2)
+}
+
+func TestProof(t *testing.T) {
+	// Test data
+	chunk := [][]byte{
+		{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
+		{0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19},
+		{0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29},
+		{0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39},
+		{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49},
+		{0x50, 0x51, 0x52, 0x53},
+	}
+	chunkNum := uint32(6)
+
+	param := GenPairingParam()
+	chal := GenChal(&param, chunkNum)
+
+	proof := GenProof(&param, &chal, chunk)
+
+	proofData1 := proof.Export()
+	proofBytes, err := proofData1.Encode()
+	assert.NoError(t, err)
+
+	proofData2, err := DecodeToProofData(proofBytes)
+	assert.NoError(t, err)
+
+	assert.Equal(t, proofData1.Mu, proofData2.Mu)
+}
+
 func TestPdp(t *testing.T) {
 	// Test data
 	data := []byte{

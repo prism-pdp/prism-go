@@ -1,6 +1,8 @@
 package xz21
 
 import (
+	"bytes"
+	"encoding/gob"
 	"math/big"
 	"math/rand"
 
@@ -14,9 +16,9 @@ type Chal struct {
 }
 
 type ChalData struct {
-	C uint32
-	K1 []byte
-	K2 []byte
+	C uint32  `json:'c'`
+	K1 []byte `json:'k1'`
+	K2 []byte `json:'k2'`
 }
 
 type Proof struct {
@@ -24,7 +26,7 @@ type Proof struct {
 }
 
 type ProofData struct {
-	Mu []byte
+	Mu []byte `json:'mu'`
 }
 
 func GenChal(_param *PairingParam, _chunkNum uint32) Chal {
@@ -51,6 +53,23 @@ func (this *ChalData) Import(_param *PairingParam) Chal {
 	return obj
 }
 
+func (this *ChalData) Encode() ([]byte, error) {
+	var buf bytes.Buffer
+    err := gob.NewEncoder(&buf).Encode(this)
+	if err != nil { return []byte{}, err }
+
+    return buf.Bytes(), nil
+}
+
+func DecodeToChalData(_b []byte) (ChalData, error) {
+	var chalData ChalData
+	dec := gob.NewDecoder(bytes.NewReader(_b))
+	err := dec.Decode(&chalData)
+	if err != nil { return ChalData{}, err }
+
+	return chalData, nil
+}
+
 func (this *Proof) Export() ProofData {
 	var data ProofData
 	data.Mu = this.Mu.Bytes()
@@ -63,6 +82,22 @@ func (this *ProofData) Import(_param *PairingParam) Proof {
 	return obj
 }
 
+func (this *ProofData) Encode() ([]byte, error) {
+	var buf bytes.Buffer
+    err := gob.NewEncoder(&buf).Encode(this)
+	if err != nil { return []byte{}, err }
+
+    return buf.Bytes(), nil
+}
+
+func DecodeToProofData(_b []byte) (ProofData, error) {
+	var proofData ProofData
+	dec := gob.NewDecoder(bytes.NewReader(_b))
+	err := dec.Decode(&proofData)
+	if err != nil { return ProofData{}, err }
+
+	return proofData, nil
+}
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt_test.go#L47
 func GenProof(_param *PairingParam, _chal *Chal, _chunk [][]byte) Proof {
 
