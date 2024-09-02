@@ -29,6 +29,17 @@ type ProofData struct {
 	Mu []byte `json:'mu'`
 }
 
+type AuditingReq struct {
+	ChalData ChalData `json:'chal'`
+	ProofData ProofData `json:'proof'`
+}
+
+type AuditingLog struct {
+	ChalData ChalData `json:'chal'`
+	ProofData ProofData `json:'proof'`
+	Result bool `json:'result'`
+}
+
 func GenChal(_param *PairingParam, _chunkNum uint32) Chal {
 	var chal Chal
 	chal.C = (rand.Uint32() % _chunkNum) + 1
@@ -88,6 +99,27 @@ func (this *ProofData) Encode() ([]byte, error) {
 	if err != nil { return []byte{}, err }
 
     return buf.Bytes(), nil
+}
+
+func (this *AuditingReq) Import(_src *XZ21AuditingReq) error {
+	var err error
+	this.ChalData, err = DecodeToChalData(_src.Chal)
+	if err != nil { return err }
+	this.ProofData, err = DecodeToProofData(_src.Proof)
+	if err != nil { return err }
+
+	return nil
+}
+
+func (this *AuditingLog) Import(_src *XZ21AuditingLog) error {
+	var err error
+	this.ChalData, err = DecodeToChalData(_src.Chal)
+	if err != nil { return err }
+	this.ProofData, err = DecodeToProofData(_src.Proof)
+	if err != nil { return err }
+	this.Result = _src.Result
+
+	return nil
 }
 
 func DecodeToProofData(_b []byte) (ProofData, error) {

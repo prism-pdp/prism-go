@@ -8,7 +8,7 @@ import (
 )
 
 type PairingParam struct {
-	Params  *pbc.Params
+	P       *pbc.Params
 	Pairing *pbc.Pairing
 	G       *pbc.Element
 	U       *pbc.Element
@@ -16,38 +16,38 @@ type PairingParam struct {
 
 func GenPairingParam() PairingParam {
 	var obj PairingParam
-	obj.Params = pbc.GenerateA(uint32(160), uint32(512))
-	obj.Pairing = obj.Params.NewPairing()
+	obj.P = pbc.GenerateA(uint32(160), uint32(512))
+	obj.Pairing = obj.P.NewPairing()
 	obj.G = obj.Pairing.NewG1().Rand()
 	obj.U = obj.Pairing.NewG1().Rand()
 	return obj
 }
 
-func (this *PairingParam) ToXZ21Para() XZ21Para {
-	var xz21Para XZ21Para
-	xz21Para.Params = this.Params.String()
-	xz21Para.U = this.U.Bytes()
-	xz21Para.G = this.G.Bytes()
-	return xz21Para
+func (this *PairingParam) ToXZ21Param() XZ21Param {
+	var xz21Param XZ21Param
+	xz21Param.P = this.P.String()
+	xz21Param.U = this.U.Bytes()
+	xz21Param.G = this.G.Bytes()
+	return xz21Param
 }
 
-func GenParamFromXZ21Para(_xz21Para *XZ21Para) PairingParam {
+func GenParamFromXZ21Param(_xz21Param *XZ21Param) PairingParam {
 	var err error
-	var para PairingParam
+	var param PairingParam
 
 	if err != nil { panic(err) }
 
-	para.Params, err = pbc.NewParamsFromString(_xz21Para.Params)
+	param.P, err = pbc.NewParamsFromString(_xz21Param.P)
 	if err != nil { panic(err) }
-	para.Pairing = pbc.NewPairing(para.Params)
-	para.G = para.Pairing.NewG1().SetBytes(_xz21Para.G)
-	para.U = para.Pairing.NewG1().SetBytes(_xz21Para.U)
+	param.Pairing = pbc.NewPairing(param.P)
+	param.G = param.Pairing.NewG1().SetBytes(_xz21Param.G)
+	param.U = param.Pairing.NewG1().SetBytes(_xz21Param.U)
 
-	return para
+	return param
 }
 
 func (this *PairingParam) Save(_path string) {
-	tmp1 := this.ToXZ21Para()
+	tmp1 := this.ToXZ21Param()
 
 	tmp2, err := json.MarshalIndent(&tmp1, "", "\t")
 	if err != nil { panic(err) }

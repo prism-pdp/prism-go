@@ -6,12 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestXZ21Para(t* testing.T) {
+func TestXZ21Param(t* testing.T) {
 	param1 := GenPairingParam()
-	xz21Para := param1.ToXZ21Para()
-	param2 := GenParamFromXZ21Para(&xz21Para)
+	xz21Param := param1.ToXZ21Param()
+	param2 := GenParamFromXZ21Param(&xz21Param)
 
-	assert.Equal(t, param1.Params.String(), param2.Params.String())
+	assert.Equal(t, param1.P.String(), param2.P.String())
 	assert.Equal(t, param1.G.Bytes(), param2.G.Bytes())
 	assert.Equal(t, param1.U.Bytes(), param2.U.Bytes())
 }

@@ -67,10 +67,10 @@ func TestPdp(t *testing.T) {
 	// Setup Phase
 	// =================================
 	// TPA generates param for pairing.
-	var xz21Para XZ21Para
+	var xz21Param XZ21Param
 	{
 		param := GenPairingParam()
-		xz21Para = param.ToXZ21Para()
+		xz21Param = param.ToXZ21Param()
 	}
 
 	// SU1 generates its own key.
@@ -78,7 +78,7 @@ func TestPdp(t *testing.T) {
 	var skDataSU1 PrivateKeyData
 	{
 		// Load param from Ethereum
-		param := GenParamFromXZ21Para(&xz21Para)
+		param := GenParamFromXZ21Param(&xz21Param)
 		// Generate key pair
 		pk, sk := GenPairingKey(&param)
 		pkDataSU1 = pk.Export()
@@ -92,7 +92,7 @@ func TestPdp(t *testing.T) {
 	var tagData TagData
 	{
 		// Load param from Ethereum
-		param := GenParamFromXZ21Para(&xz21Para)
+		param := GenParamFromXZ21Param(&xz21Param)
 		// Read key from file
 		skSU1 := skDataSU1.Import(&param)
 		// Generate tag
@@ -112,7 +112,7 @@ func TestPdp(t *testing.T) {
 	var tagSize uint32
 	{
 		// Load param from Ethereum
-		param := GenParamFromXZ21Para(&xz21Para)
+		param := GenParamFromXZ21Param(&xz21Param)
 		// Generate challenge for deduplication
 		chal := GenChal(&param, tagData.Size)
 		// Export data to be sent to SU
@@ -124,7 +124,7 @@ func TestPdp(t *testing.T) {
 	var proofData ProofData
 	{
 		// Load param from Ethereum
-		param := GenParamFromXZ21Para(&xz21Para)
+		param := GenParamFromXZ21Param(&xz21Param)
 		// Receive chalData from SP
 		chal := chalData.Import(&param)
 		// Generate proof
@@ -138,7 +138,7 @@ func TestPdp(t *testing.T) {
 	var result bool
 	{
 		// Load param from Ethereum
-		param := GenParamFromXZ21Para(&xz21Para)
+		param := GenParamFromXZ21Param(&xz21Param)
 		// Read data from file
 		pkSU1 := pkDataSU1.Import(&param)
 		chal := chalData.Import(&param)
