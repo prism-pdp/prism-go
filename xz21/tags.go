@@ -60,9 +60,15 @@ func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
 }
 
 // https://github.com/es3ku/z22m2azuma/blob/main/user/src/interfaces/crypt/content.go#L23
-func HashChunks(_chunks [][]byte) [][]byte {
+func HashChunks(_chunks [][]byte, _chal *Chal) [][]byte {
+
 	numChunk := uint32(len(_chunks))
 	hash := make([][]byte, numChunk)
+
+	var setA []uint32
+	if _chal != nil {
+		setA = GenA(_chal.K1, _chal.C, numChunk)
+	}
 
 	for i := uint32(0); i < numChunk; i++ {
 		hash[i]  = make([]byte, 32)
@@ -70,6 +76,11 @@ func HashChunks(_chunks [][]byte) [][]byte {
 
 	b := make([]byte, 4)
 	for i := uint32(0); i < numChunk; i++ {
+		if len(setA) != 0 {
+			if slices.Contains(setA, i) == false {
+				continue
+			}
+		}
 		binary.LittleEndian.PutUint32(b, i)
 		h := sha256.Sum256(slices.Concat(_chunks[i], b))
 		copy(hash[i], h[:])
@@ -79,7 +90,7 @@ func HashChunks(_chunks [][]byte) [][]byte {
 }
 
 func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag, [][]byte) {
-	hashChunks := HashChunks(_chunks)
+	hashChunks := HashChunks(_chunks, nil)
 
 	var tag Tag
 	tag.Size = uint32(len(_chunks))
