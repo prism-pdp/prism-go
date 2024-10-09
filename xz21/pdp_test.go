@@ -147,7 +147,7 @@ func TestPdp(t *testing.T) {
 		proof := proofData.Import(&param)
 		// Verify proof
 		chunk, _ := SplitData(data, tag.Size)
-		hashChunks := HashChunks(chunk, &chal)
+		hashChunks := HashSampledChunks(chunk, &chal)
 		result = VerifyProof(&param, &tag, hashChunks, &chal, &proof, pkSU1.Key)
 	}
 

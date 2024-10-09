@@ -150,7 +150,7 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunk [][]byte) Proof {
 }
 
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt.go#L98
-func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks [][]byte, _chal *Chal, _proof *Proof, _pubKey *pbc.Element) bool {
+func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte, _chal *Chal, _proof *Proof, _pubKey *pbc.Element) bool {
 
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
@@ -169,9 +169,13 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks [][]byte, _chal *C
 		left = _param.Mul(left, t2)
 
 		// Right
-		m1 := _param.SetFromHash(_hashChunks[a])
-		m2 := _param.PowZn(m1, v)
-		right  = _param.Mul(right, m2)
+		if digest, ok := _hashChunks[a]; ok {
+			m1 := _param.SetFromHash(digest[:])
+			m2 := _param.PowZn(m1, v)
+			right  = _param.Mul(right, m2)
+		} else {
+			return false
+		}
 	}
 
 	u := _param.PowZn(_param.U, _proof.Mu)

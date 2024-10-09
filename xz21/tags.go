@@ -60,37 +60,39 @@ func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
 }
 
 // https://github.com/es3ku/z22m2azuma/blob/main/user/src/interfaces/crypt/content.go#L23
-func HashChunks(_chunks [][]byte, _chal *Chal) [][]byte {
+func HashChunks(_chunks [][]byte, _targetList []uint32) map[uint32][]byte {
 
-	numChunk := uint32(len(_chunks))
-	hash := make([][]byte, numChunk)
-
-	var setA []uint32
-	if _chal != nil {
-		setA = GenA(_chal.K1, _chal.C, numChunk)
-	}
-
-	for i := uint32(0); i < numChunk; i++ {
-		hash[i]  = make([]byte, 32)
-	}
-
+	sampledDigests := make(map[uint32][]byte)
 	b := make([]byte, 4)
-	for i := uint32(0); i < numChunk; i++ {
-		if len(setA) != 0 {
-			if slices.Contains(setA, i) == false {
-				continue
-			}
-		}
+
+	for _, i := range _targetList {
 		binary.LittleEndian.PutUint32(b, i)
-		h := sha256.Sum256(slices.Concat(_chunks[i], b))
-		copy(hash[i], h[:])
+		sampledDigest := sha256.Sum256(slices.Concat(_chunks[i], b))
+
+		sampledDigests[i] = make([]byte, 32)
+		copy(sampledDigests[i], sampledDigest[:])
 	}
 
-	return hash
+	return sampledDigests
 }
 
-func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag, [][]byte) {
-	hashChunks := HashChunks(_chunks, nil)
+func HashAllChunks(_chunks [][]byte) map[uint32][]byte {
+	numChunk := uint32(len(_chunks))
+	targetList := make([]uint32, numChunk)
+	for i := uint32(0); i < numChunk; i++ {
+		targetList[i] = i
+	}
+	return HashChunks(_chunks, targetList)
+}
+
+func HashSampledChunks(_chunks [][]byte, _chal *Chal) map[uint32][]byte {
+	numChunk := uint32(len(_chunks))
+	setA := GenA(_chal.K1, _chal.C, numChunk)
+	return HashChunks(_chunks, setA)
+}
+
+func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag, map[uint32][]byte) {
+	hashChunks := HashAllChunks(_chunks)
 
 	var tag Tag
 	tag.Size = uint32(len(_chunks))
