@@ -154,7 +154,7 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte,
 
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
-	n := uint32(len(_tag.Mu))
+	n := uint32(len(_tag.G))
 
 	setA := GenA(_chal.K1, _chal.C, n)
 	setV := GenV(_chal.K2, _chal.C, _param)
@@ -164,7 +164,7 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte,
 		v := setV[i]
 
 		// Left
-		t1 := _tag.Mu[a]
+		t1 := _tag.G[a]
 		t2 := _param.PowZn(t1, v)
 		left = _param.Mul(left, t2)
 

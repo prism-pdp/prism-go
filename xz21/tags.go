@@ -10,30 +10,30 @@ import (
 
 type Tag struct {
 	Size uint32
-	Mu []*pbc.Element
+	G []*pbc.Element // gamma
 }
 
 type TagData struct {
 	Size uint32
-	Mu [][]byte
+	G [][]byte // gamma
 }
 
 func (this *Tag) Export() TagData {
 	var data TagData
-	data.Size = uint32(len(this.Mu))
-	data.Mu = make([][]byte, data.Size)
-	for i, v := range this.Mu {
-		data.Mu[i] = v.Bytes()
+	data.Size = uint32(len(this.G))
+	data.G = make([][]byte, data.Size)
+	for i, v := range this.G {
+		data.G[i] = v.Bytes()
 	}
 	return data
 }
 
 func (this *TagData) Import(_param *PairingParam) Tag {
 	var obj Tag
-	obj.Size = uint32(len(this.Mu))
-	obj.Mu = make([]*pbc.Element, obj.Size)
-	for i, v := range this.Mu {
-		obj.Mu[i] = _param.Pairing.NewG1().SetBytes(v)
+	obj.Size = uint32(len(this.G))
+	obj.G = make([]*pbc.Element, obj.Size)
+	for i, v := range this.G {
+		obj.G[i] = _param.Pairing.NewG1().SetBytes(v)
 	}
 	return obj
 }
@@ -96,14 +96,14 @@ func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag,
 
 	var tag Tag
 	tag.Size = uint32(len(_chunks))
-	tag.Mu = make([]*pbc.Element, tag.Size)
+	tag.G = make([]*pbc.Element, tag.Size)
 
 	for i := uint32(0); i < tag.Size; i++ {
 		e1 := _param.SetFromHash(hashChunks[i])
 		e2 := _param.SetFromHash(_chunks[i])
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
-		tag.Mu[i] = _param.PowZn(e4, _privKey)
+		tag.G[i] = _param.PowZn(e4, _privKey)
 	}
 
 	return tag, hashChunks

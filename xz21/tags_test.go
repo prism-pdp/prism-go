@@ -25,5 +25,5 @@ func TestGenTag(t *testing.T) {
 	tag, hashChunks := GenTag(&param, sk.Key, chunk)
 	assert.Equal(t, tag.Size, uint32(5))
 	assert.Equal(t, len(hashChunks), 5)
-	assert.Equal(t, len(tag.Mu), 5)
+	assert.Equal(t, len(tag.G), 5)
 }
