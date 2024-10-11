@@ -143,18 +143,25 @@ func TestPdp(t *testing.T) {
 	// SP verifies proof with tag and public key of SU1.
 	var result bool
 	{
+		var digestSubset map[uint32][]byte
+
 		// Load param from Ethereum
 		param := GenParamFromXZ21Param(&xz21Param)
+
 		// Read data from file
 		pkSU1 := pkDataSU1.Import(&param)
 		chal := chalData.Import(&param)
-		tag := tagData.ImportSubset(&param, &chal)
+
 		// Receive data from SU
 		proof := proofData.Import(&param)
+
 		// Verify proof
-		chunk, _ := SplitData(data, tag.Size)
-		hashChunks := HashSampledChunks(chunk, &chal)
-		result, err = VerifyProof(&param, &tag, hashChunks, &chal, &proof, pkSU1.Key)
+		tagDataSubset := NewTagData()
+		digestSubset, tagDataSubset, err = MakeSubset(data, &tagData, &chal)
+		assert.NoError(t, err)
+
+		tagSubset := tagDataSubset.ImportAll(&param)
+		result, err = VerifyProof(&param, &tagSubset, digestSubset, &chal, &proof, pkSU1.Key)
 		assert.NoError(t, err)
 	}
 

@@ -18,6 +18,11 @@ type TagData struct {
 	G map[uint32][]byte // gamma
 }
 
+func NewTagData() *TagData {
+	this := &TagData{Size: 0, G: make(map[uint32][]byte)}
+	return this
+}
+
 func (this *Tag) Export() TagData {
 	var data TagData
 	data.Size = this.Size
@@ -39,9 +44,9 @@ func (this *TagData) _import(_param *PairingParam, _targetList []uint32) Tag {
 }
 
 func (this *TagData) ImportAll(_param *PairingParam) Tag {
-	targetList := make([]uint32, this.Size)
-	for i := uint32(0); i < this.Size; i++ {
-		targetList[i] = i
+	targetList := make([]uint32, 0, this.Size)
+	for k, _ := range this.G {
+		targetList = append(targetList, k)
 	}
 	return this._import(_param, targetList)
 }
@@ -52,25 +57,16 @@ func (this *TagData) ImportSubset(_param *PairingParam, _chal *Chal) Tag {
 	return tag
 }
 
-func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
-	var chunk [][]byte
-	dataSize := uint32(len(_data))
-
-	chunkSize  := dataSize / _chunkNum
-	chunkSizeR := dataSize % _chunkNum
-
-	var s, e uint32
-
-	for i := uint32(0); i < _chunkNum; i++ {
-		s = i * chunkSize
-		e = s + chunkSize
-		if i == (_chunkNum - 1) {
-			e = e + chunkSizeR
+func (this *TagData) Copy(_from *TagData, _indexList []uint32) {
+	// Size
+	this.Size = _from.Size
+	// G
+	for _, i := range _indexList {
+		if _, ok := this.G[i]; !ok {
+			this.G[i] = make([]byte, len(_from.G[i]))
+			copy(this.G[i], _from.G[i])
 		}
-		chunk = append(chunk, _data[s:e])
 	}
-
-	return chunk, nil
 }
 
 // https://github.com/es3ku/z22m2azuma/blob/main/user/src/interfaces/crypt/content.go#L23
