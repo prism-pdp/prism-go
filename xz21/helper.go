@@ -22,8 +22,8 @@ func SplitData(_data []byte, _chunkNum uint32) (*ChunkSet, error) {
 	return chunkSet, nil
 }
 
-func MakeSubset(_data []byte, _tagData *TagData, _chal *Chal) (*DigestSet, *TagData, error) {
-	chunkSet, err := SplitData(_data, _tagData.Size)
+func MakeSubset(_data []byte, _tagDataSet *TagDataSet, _chal *Chal) (*DigestSet, *TagDataSet, error) {
+	chunkSet, err := SplitData(_data, _tagDataSet.Size)
 	if err != nil { return nil, nil, err}
 
 	numChunk := chunkSet.Size()
@@ -31,11 +31,11 @@ func MakeSubset(_data []byte, _tagData *TagData, _chal *Chal) (*DigestSet, *TagD
 
 	digestSubSet := HashChunks(chunkSet, setA)
 
-	tagDataSubset := NewTagData()
-	tagDataSubset.Size = _tagData.Size
+	tagDataSubset := NewTagDataSet()
+	tagDataSubset.Size = _tagDataSet.Size
 	for _, i := range setA {
-		if _, ok := tagDataSubset.G[i]; !ok {
-			tagDataSubset.G[i] = _tagData.G[i]
+		if _, ok := tagDataSubset.TagData[i]; !ok {
+			tagDataSubset.TagData[i] = _tagDataSet.TagData[i]
 		}
 	}
 

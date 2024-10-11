@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGenTag(t *testing.T) {
+func TestGenTags(t *testing.T) {
 	data := []byte{
 		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
 		10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -22,8 +22,8 @@ func TestGenTag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(chunkSet.Size()), uint32(5))
 
-	tag, digestSet := GenTag(&param, sk.Key, chunkSet)
+	tag, digestSet := GenTags(&param, sk.Key, chunkSet)
 	assert.Equal(t, tag.Size, uint32(5))
 	assert.Equal(t, digestSet.Size(), uint32(5))
-	assert.Equal(t, len(tag.G), 5)
+	assert.Equal(t, len(tag.Tag), 5)
 }

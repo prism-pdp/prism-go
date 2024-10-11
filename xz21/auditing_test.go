@@ -48,7 +48,7 @@ func TestAuditing(t *testing.T) {
 	// Upload Phase (New File)
 	// =================================
 	// SU generates tag of data to be uploaded
-	var tagData TagData
+	var tagDataSet TagDataSet
 	{
 		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
@@ -56,9 +56,9 @@ func TestAuditing(t *testing.T) {
 		skSU := skDataSU.Import(&param)
 		// Generate tag
 		chunkSet, _ := SplitData(data, 8)
-		tag, _ := GenTag(&param, skSU.Key, chunkSet)
+		tag, _ := GenTags(&param, skSU.Key, chunkSet)
 		// Export data to be sent to SP
-		tagData = tag.Export()
+		tagDataSet = tag.Export()
 	}
 
 	// =================================
@@ -71,10 +71,10 @@ func TestAuditing(t *testing.T) {
 		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 		// Generate challenge for deduplication
-		chal := NewChal(&param, tagData.Size)
+		chal := NewChal(&param, tagDataSet.Size)
 		// Export data to be sent to TPA
 		auditingReqData.ChalData = chal.Export()
-		tagSize = tagData.Size
+		tagSize = tagDataSet.Size
 	}
 	// SP generates proof with data owned by itself.
 	{
@@ -106,8 +106,8 @@ func TestAuditing(t *testing.T) {
 		auditingReq := auditingReqData.Import(&param)
 
 		// Receive data from SU
-		tagDataSubset := NewTagData()
-		digestSubset, tagDataSubset, err = MakeSubset(data, &tagData, &auditingReq.Chal)
+		tagDataSubset := NewTagDataSet()
+		digestSubset, tagDataSubset, err = MakeSubset(data, &tagDataSet, &auditingReq.Chal)
 		assert.NoError(t, err)
 
 		// Verify proof

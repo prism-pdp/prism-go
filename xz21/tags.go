@@ -4,81 +4,81 @@ import (
 	"github.com/Nik-U/pbc"
 )
 
-type Tag struct {
+type TagSet struct {
 	Size uint32
-	G map[uint32]*pbc.Element // gamma
+	Tag map[uint32]*pbc.Element // gamma
 }
 
-type TagData struct {
+type TagDataSet struct {
 	Size uint32
-	G map[uint32][]byte // gamma
+	TagData map[uint32][]byte // gamma
 }
 
-func NewTagData() *TagData {
-	this := &TagData{Size: 0, G: make(map[uint32][]byte)}
+func NewTagDataSet() *TagDataSet {
+	this := &TagDataSet{Size: 0, TagData: make(map[uint32][]byte)}
 	return this
 }
 
-func (this *Tag) Export() TagData {
-	var data TagData
+func (this *TagSet) Export() TagDataSet {
+	var data TagDataSet
 	data.Size = this.Size
-	data.G = make(map[uint32][]byte)
-	for i, v := range this.G {
-		data.G[i] = v.Bytes()
+	data.TagData = make(map[uint32][]byte)
+	for i, v := range this.Tag {
+		data.TagData[i] = v.Bytes()
 	}
 	return data
 }
 
-func (this *TagData) _import(_param *PairingParam, _targetList []uint32) Tag {
-	var obj Tag
+func (this *TagDataSet) _import(_param *PairingParam, _targetList []uint32) TagSet {
+	var obj TagSet
 	obj.Size = this.Size
-	obj.G = make(map[uint32]*pbc.Element)
+	obj.Tag = make(map[uint32]*pbc.Element)
 	for _, i := range _targetList {
-		obj.G[i] = _param.Pairing.NewG1().SetBytes(this.G[i])
+		obj.Tag[i] = _param.Pairing.NewG1().SetBytes(this.TagData[i])
 	}
 	return obj
 }
 
-func (this *TagData) ImportAll(_param *PairingParam) Tag {
+func (this *TagDataSet) ImportAll(_param *PairingParam) TagSet {
 	targetList := make([]uint32, 0, this.Size)
-	for k, _ := range this.G {
+	for k, _ := range this.TagData {
 		targetList = append(targetList, k)
 	}
 	return this._import(_param, targetList)
 }
 
-func (this *TagData) ImportSubset(_param *PairingParam, _chal *Chal) Tag {
+func (this *TagDataSet) ImportSubset(_param *PairingParam, _chal *Chal) TagSet {
 	setA := GenA(_chal, this.Size)
-	tag := this._import(_param, setA)
-	return tag
+	tagSet := this._import(_param, setA)
+	return tagSet
 }
 
-func (this *TagData) Copy(_from *TagData, _indexList []uint32) {
+func (this *TagDataSet) Copy(_from *TagDataSet, _indexList []uint32) {
 	// Size
 	this.Size = _from.Size
-	// G
+	// Tag
 	for _, i := range _indexList {
-		if _, ok := this.G[i]; !ok {
-			this.G[i] = make([]byte, len(_from.G[i]))
-			copy(this.G[i], _from.G[i])
+		if _, ok := this.TagData[i]; !ok {
+			this.TagData[i] = make([]byte, len(_from.TagData[i]))
+			copy(this.TagData[i], _from.TagData[i])
 		}
 	}
 }
 
-func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunkSet *ChunkSet) (Tag, *DigestSet) {
+func GenTags(_param *PairingParam, _privKey *pbc.Element, _chunkSet *ChunkSet) (TagSet, *DigestSet) {
 	digestSet := HashAllChunks(_chunkSet)
 
-	var tag Tag
-	tag.Size = _chunkSet.Size()
-	tag.G = make(map[uint32]*pbc.Element, tag.Size)
+	var tagSet TagSet
+	tagSet.Size = _chunkSet.Size()
+	tagSet.Tag = make(map[uint32]*pbc.Element, tagSet.Size)
 
-	for i := uint32(0); i < tag.Size; i++ {
+	for i := uint32(0); i < tagSet.Size; i++ {
 		e1 := _param.SetFromHash(digestSet.Get(i))
 		e2 := _param.SetFromHash(_chunkSet.Get(i))
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
-		tag.G[i] = _param.PowZn(e4, _privKey)
+		tagSet.Tag[i] = _param.PowZn(e4, _privKey)
 	}
 
-	return tag, digestSet
+	return tagSet, digestSet
 }
