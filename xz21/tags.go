@@ -65,16 +65,16 @@ func (this *TagData) Copy(_from *TagData, _indexList []uint32) {
 	}
 }
 
-func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag, *DigestSet) {
-	digestSet := HashAllChunks(_chunks)
+func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunkSet *ChunkSet) (Tag, *DigestSet) {
+	digestSet := HashAllChunks(_chunkSet)
 
 	var tag Tag
-	tag.Size = uint32(len(_chunks))
+	tag.Size = _chunkSet.Size()
 	tag.G = make(map[uint32]*pbc.Element, tag.Size)
 
 	for i := uint32(0); i < tag.Size; i++ {
 		e1 := _param.SetFromHash(digestSet.Get(i))
-		e2 := _param.SetFromHash(_chunks[i])
+		e2 := _param.SetFromHash(_chunkSet.Get(i))
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
 		tag.G[i] = _param.PowZn(e4, _privKey)

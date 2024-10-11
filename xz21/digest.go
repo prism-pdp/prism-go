@@ -29,31 +29,31 @@ func (this *DigestSet) Size() uint32 {
 	return uint32(len(this.blocks))
 }
 
-func HashChunks(_chunks [][]byte, _targetList []uint32) *DigestSet {
+func HashChunks(_chunkSet *ChunkSet, _targetList []uint32) *DigestSet {
 
 	digestSet := NewDigestSet()
 	b := make([]byte, 4)
 
 	for _, i := range _targetList {
 		binary.LittleEndian.PutUint32(b, i)
-		digest := sha256.Sum256(slices.Concat(_chunks[i], b))
+		digest := sha256.Sum256(slices.Concat(_chunkSet.Get(i), b))
 		digestSet.Set(i, digest[:])
 	}
 
 	return digestSet
 }
 
-func HashAllChunks(_chunks [][]byte) *DigestSet {
-	numChunk := uint32(len(_chunks))
+func HashAllChunks(_chunkSet *ChunkSet) *DigestSet {
+	numChunk := _chunkSet.Size()
 	targetList := make([]uint32, numChunk)
 	for i := uint32(0); i < numChunk; i++ {
 		targetList[i] = i
 	}
-	return HashChunks(_chunks, targetList)
+	return HashChunks(_chunkSet, targetList)
 }
 
-func HashSampledChunks(_chunks [][]byte, _chal *Chal) *DigestSet {
-	numChunk := uint32(len(_chunks))
+func HashSampledChunks(_chunkSet *ChunkSet, _chal *Chal) *DigestSet {
+	numChunk := _chunkSet.Size()
 	setA := GenA(_chal.K1, _chal.C, numChunk)
-	return HashChunks(_chunks, setA)
+	return HashChunks(_chunkSet, setA)
 }

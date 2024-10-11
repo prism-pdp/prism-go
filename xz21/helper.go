@@ -1,7 +1,7 @@
 package xz21
 
-func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
-	var chunk [][]byte
+func SplitData(_data []byte, _chunkNum uint32) (*ChunkSet, error) {
+	chunkSet := NewChunkSet()
 	dataSize := uint32(len(_data))
 
 	chunkSize  := dataSize / _chunkNum
@@ -15,20 +15,21 @@ func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
 		if i == (_chunkNum - 1) {
 			e = e + chunkSizeR
 		}
-		chunk = append(chunk, _data[s:e])
+		// chunkSet = append(chunkSet, _data[s:e])
+		chunkSet.Set(i, _data[s:e])
 	}
 
-	return chunk, nil
+	return chunkSet, nil
 }
 
 func MakeSubset(_data []byte, _tagData *TagData, _chal *Chal) (*DigestSet, *TagData, error) {
-	chunks, err := SplitData(_data, _tagData.Size)
+	chunkSet, err := SplitData(_data, _tagData.Size)
 	if err != nil { return nil, nil, err}
 
-	numChunk := uint32(len(chunks))
+	numChunk := chunkSet.Size()
 	setA := GenA(_chal.K1, _chal.C, numChunk)
 
-	digestSubSet := HashChunks(chunks, setA)
+	digestSubSet := HashChunks(chunkSet, setA)
 
 	tagDataSubset := NewTagData()
 	tagDataSubset.Size = _tagData.Size

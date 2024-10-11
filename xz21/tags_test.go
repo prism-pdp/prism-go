@@ -18,11 +18,11 @@ func TestGenTag(t *testing.T) {
 	param := GenPairingParam()
 	_, sk := GenPairingKey(&param)
 
-	chunk, err := SplitData(data, 5)
+	chunkSet, err := SplitData(data, 5)
 	assert.NoError(t, err)
-	assert.Equal(t, len(chunk), 5)
+	assert.Equal(t, uint32(chunkSet.Size()), uint32(5))
 
-	tag, digestSet := GenTag(&param, sk.Key, chunk)
+	tag, digestSet := GenTag(&param, sk.Key, chunkSet)
 	assert.Equal(t, tag.Size, uint32(5))
 	assert.Equal(t, digestSet.Size(), uint32(5))
 	assert.Equal(t, len(tag.G), 5)
