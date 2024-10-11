@@ -85,19 +85,16 @@ func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	return nil
 }
 
-func VerifyProof(_param *PairingParam, _tag *Tag, _digestSet *DigestSet, _auditingReq *AuditingReq, _pubKey *pbc.Element) (bool, error) {
-
-	chal := &_auditingReq.Chal
-	proof := &_auditingReq.Proof
+func VerifyProof(_param *PairingParam, _tag *Tag, _digestSet *DigestSet, _chal *Chal, _proof *Proof, _pubKey *pbc.Element) (bool, error) {
 
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
 	n := _tag.Size
 
-	setA := GenA(chal, n)
-	setV := GenV(chal, _param)
+	setA := GenA(_chal, n)
+	setV := GenV(_chal, _param)
 
-	for i := uint32(0); i < chal.C; i++ {
+	for i := uint32(0); i < _chal.C; i++ {
 		a := setA[i]
 		v := setV[i]
 
@@ -119,7 +116,7 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _digestSet *DigestSet, _auditi
 		}
 	}
 
-	u := _param.PowZn(_param.U, proof.Mu)
+	u := _param.PowZn(_param.U, _proof.Mu)
 	right = _param.Mul(right, u)
 
 	lhs := _param.Pairing.NewGT().Pair(left, _param.G)

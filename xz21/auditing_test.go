@@ -112,7 +112,7 @@ func TestAuditing(t *testing.T) {
 
 		// Verify proof
 		tagSubset := tagDataSubset.ImportAll(&param)
-		result, err = VerifyProof(&param, &tagSubset, digestSubset, &auditingReq, pkSU.Key)
+		result, err = VerifyProof(&param, &tagSubset, digestSubset, &auditingReq.Chal, &auditingReq.Proof, pkSU.Key)
 		assert.NoError(t, err)
 	}
 
