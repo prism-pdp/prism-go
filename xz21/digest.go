@@ -54,6 +54,6 @@ func HashAllChunks(_chunkSet *ChunkSet) *DigestSet {
 
 func HashSampledChunks(_chunkSet *ChunkSet, _chal *Chal) *DigestSet {
 	numChunk := _chunkSet.Size()
-	setA := GenA(_chal.K1, _chal.C, numChunk)
+	setA := GenA(_chal, numChunk)
 	return HashChunks(_chunkSet, setA)
 }

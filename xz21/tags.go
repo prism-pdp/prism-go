@@ -48,7 +48,7 @@ func (this *TagData) ImportAll(_param *PairingParam) Tag {
 }
 
 func (this *TagData) ImportSubset(_param *PairingParam, _chal *Chal) Tag {
-	setA := GenA(_chal.K1, _chal.C, this.Size)
+	setA := GenA(_chal, this.Size)
 	tag := this._import(_param, setA)
 	return tag
 }

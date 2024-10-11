@@ -6,21 +6,25 @@ import (
 	"github.com/Nik-U/pbc" // v0.0.0-20181205041846-3e516ca0c5d6
 )
 
-func GenA(_k1 *pbc.Element, _c uint32, _chunkSize uint32) []uint32 {
-	a := make([]uint32, _c)
+func GenA(_chal *Chal, _chunkSize uint32) []uint32 {
+	k1 := _chal.K1
+	c := _chal.C
+	a := make([]uint32, c)
 	n := big.NewInt(int64(_chunkSize))
-	for i := uint32(0); i < _c; i++ {
+	for i := uint32(0); i < c; i++ {
 		iBig := new(big.Int).SetUint64(uint64(i + 1))
-		a[i] = hash1(iBig, _k1, n)
+		a[i] = hash1(iBig, k1, n)
 	}
 	return a
 }
 
-func GenV(_k2 *pbc.Element, _c uint32, _param *PairingParam) []*pbc.Element {
-	v := make([]*pbc.Element, _c)
-	for i := uint32(0); i < _c; i++ {
+func GenV(_chal *Chal, _param *PairingParam) []*pbc.Element {
+	k2 := _chal.K2
+	c := _chal.C
+	v := make([]*pbc.Element, c)
+	for i := uint32(0); i < c; i++ {
 		iBig := new(big.Int).SetUint64(uint64(i + 1))
-		v[i] = hash2(iBig, _k2, _param)
+		v[i] = hash2(iBig, k2, _param)
 	}
 	return v
 }

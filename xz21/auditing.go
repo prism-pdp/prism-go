@@ -8,6 +8,11 @@ import (
 )
 
 type AuditingReq struct {
+	Chal Chal `json:'chal'`
+	Proof Proof `json:'proof'`
+}
+
+type AuditingReqData struct {
 	ChalData ChalData `json:'chal'`
 	ProofData ProofData `json:'proof'`
 }
@@ -18,7 +23,21 @@ type AuditingLog struct {
 	Result bool `json:'result'`
 }
 
-func (this *AuditingReq) Import(_src *XZ21AuditingReq) error {
+func (this *AuditingReq) Export() AuditingReqData {
+	var data AuditingReqData
+	data.ChalData = this.Chal.Export()
+	data.ProofData = this.Proof.Export()
+	return data
+}
+
+func (this *AuditingReqData) Import(_param *PairingParam) AuditingReq {
+	var obj AuditingReq
+	obj.Chal = this.ChalData.Import(_param)
+	obj.Proof = this.ProofData.Import(_param)
+	return obj
+}
+
+func (this *AuditingReqData) ToXZ21(_src *XZ21AuditingReq) error {
 	var err error
 	this.ChalData, err = DecodeToChalData(_src.Chal)
 	if err != nil { return err }
@@ -26,6 +45,14 @@ func (this *AuditingReq) Import(_src *XZ21AuditingReq) error {
 	if err != nil { return err }
 
 	return nil
+}
+
+func (this *AuditingReqData) ImportChal(_param *PairingParam) Chal {
+	return this.ChalData.Import(_param)
+}
+
+func (this *AuditingReqData) ImportProof(_param *PairingParam) Proof {
+	return this.ProofData.Import(_param)
 }
 
 func (this *AuditingLog) Import(_src *XZ21AuditingLog) error {
@@ -39,16 +66,19 @@ func (this *AuditingLog) Import(_src *XZ21AuditingLog) error {
 	return nil
 }
 
-func VerifyProof(_param *PairingParam, _tag *Tag, _digestSet *DigestSet, _chal *Chal, _proof *Proof, _pubKey *pbc.Element) (bool, error) {
+func VerifyProof(_param *PairingParam, _tag *Tag, _digestSet *DigestSet, _auditingReq *AuditingReq, _pubKey *pbc.Element) (bool, error) {
+
+	chal := &_auditingReq.Chal
+	proof := &_auditingReq.Proof
 
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
 	n := _tag.Size
 
-	setA := GenA(_chal.K1, _chal.C, n)
-	setV := GenV(_chal.K2, _chal.C, _param)
+	setA := GenA(chal, n)
+	setV := GenV(chal, _param)
 
-	for i := uint32(0); i < _chal.C; i++ {
+	for i := uint32(0); i < chal.C; i++ {
 		a := setA[i]
 		v := setV[i]
 
@@ -70,7 +100,7 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _digestSet *DigestSet, _chal *
 		}
 	}
 
-	u := _param.PowZn(_param.U, _proof.Mu)
+	u := _param.PowZn(_param.U, proof.Mu)
 	right = _param.Mul(right, u)
 
 	lhs := _param.Pairing.NewGT().Pair(left, _param.G)

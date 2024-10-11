@@ -48,8 +48,8 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunkSet *ChunkSet) Proof {
 
 	n := _chunkSet.Size()
 
-	setA := GenA(_chal.K1, _chal.C, n)
-	setV := GenV(_chal.K2, _chal.C, _param)
+	setA := GenA(_chal, n)
+	setV := GenV(_chal, _param)
 
 	var proof Proof
 	proof.Mu = _param.Pairing.NewZr().Set0()
