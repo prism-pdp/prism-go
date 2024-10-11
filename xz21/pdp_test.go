@@ -83,7 +83,7 @@ func TestPdp(t *testing.T) {
 	var pkDataSU1 PublicKeyData
 	var skDataSU1 PrivateKeyData
 	{
-		// Load param from Ethereum
+		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 		// Generate key pair
 		pk, sk := GenPairingKey(&param)
@@ -97,7 +97,7 @@ func TestPdp(t *testing.T) {
 	// SU1 generates tag of data to be uploaded
 	var tagData TagData
 	{
-		// Load param from Ethereum
+		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 		// Read key from file
 		skSU1 := skDataSU1.Import(&param)
@@ -111,13 +111,11 @@ func TestPdp(t *testing.T) {
 	// =================================
 	// Upload Phase (Dedup File)
 	// =================================
-	// SU2 requests SP to upload data.
-
 	// SP generates challenge for deduplication.
 	var chalData ChalData
 	var tagSize uint32
 	{
-		// Load param from Ethereum
+		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 		// Generate challenge for deduplication
 		chal := GenChal(&param, tagData.Size)
@@ -125,27 +123,30 @@ func TestPdp(t *testing.T) {
 		chalData = chal.Export()
 		tagSize = tagData.Size
 	}
-
 	// SU2 generates proof with data owned by itself.
 	var proofData ProofData
 	{
-		// Load param from Ethereum
-		param := GenParamFromXZ21Param(&xz21Param)
+		var chal Chal
+		var chunks [][]byte
+		var param PairingParam
+		var proof Proof
+
+		// Load param
+		param = GenParamFromXZ21Param(&xz21Param)
 		// Receive chalData from SP
-		chal := chalData.Import(&param)
+		chal = chalData.Import(&param)
 		// Generate proof
-		chunk, _ := SplitData(data, tagSize)
-		proof := GenProof(&param, &chal, chunk)
+		chunks, _ = SplitData(data, tagSize)
+		proof = GenProof(&param, &chal, chunks)
 		// Export data to be sent to SP
 		proofData = proof.Export()
 	}
-
 	// SP verifies proof with tag and public key of SU1.
 	var result bool
 	{
-		var digestSubset map[uint32][]byte
+		var digestSubset *DigestSet
 
-		// Load param from Ethereum
+		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 
 		// Read data from file

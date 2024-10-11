@@ -21,14 +21,14 @@ func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
 	return chunk, nil
 }
 
-func MakeSubset(_data []byte, _tagData *TagData, _chal *Chal) (map[uint32][]byte, *TagData, error) {
+func MakeSubset(_data []byte, _tagData *TagData, _chal *Chal) (*DigestSet, *TagData, error) {
 	chunks, err := SplitData(_data, _tagData.Size)
 	if err != nil { return nil, nil, err}
 
 	numChunk := uint32(len(chunks))
 	setA := GenA(_chal.K1, _chal.C, numChunk)
 
-	digests := HashChunks(chunks, setA)
+	digestSubSet := HashChunks(chunks, setA)
 
 	tagDataSubset := NewTagData()
 	tagDataSubset.Size = _tagData.Size
@@ -38,7 +38,7 @@ func MakeSubset(_data []byte, _tagData *TagData, _chal *Chal) (map[uint32][]byte
 		}
 	}
 
-	return digests, tagDataSubset, nil
+	return digestSubSet, tagDataSubset, nil
 }
 
 func MapKeys[K comparable, V any](m map[K]V) []K {

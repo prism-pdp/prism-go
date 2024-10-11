@@ -1,10 +1,6 @@
 package xz21
 
 import (
-	"crypto/sha256"
-	"encoding/binary"
-	"slices"
-
 	"github.com/Nik-U/pbc"
 )
 
@@ -69,52 +65,20 @@ func (this *TagData) Copy(_from *TagData, _indexList []uint32) {
 	}
 }
 
-// https://github.com/es3ku/z22m2azuma/blob/main/user/src/interfaces/crypt/content.go#L23
-func HashChunks(_chunks [][]byte, _targetList []uint32) map[uint32][]byte {
-
-	sampledDigests := make(map[uint32][]byte)
-	b := make([]byte, 4)
-
-	for _, i := range _targetList {
-		binary.LittleEndian.PutUint32(b, i)
-		sampledDigest := sha256.Sum256(slices.Concat(_chunks[i], b))
-
-		sampledDigests[i] = make([]byte, 32)
-		copy(sampledDigests[i], sampledDigest[:])
-	}
-
-	return sampledDigests
-}
-
-func HashAllChunks(_chunks [][]byte) map[uint32][]byte {
-	numChunk := uint32(len(_chunks))
-	targetList := make([]uint32, numChunk)
-	for i := uint32(0); i < numChunk; i++ {
-		targetList[i] = i
-	}
-	return HashChunks(_chunks, targetList)
-}
-
-func HashSampledChunks(_chunks [][]byte, _chal *Chal) map[uint32][]byte {
-	numChunk := uint32(len(_chunks))
-	setA := GenA(_chal.K1, _chal.C, numChunk)
-	return HashChunks(_chunks, setA)
-}
-
-func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag, map[uint32][]byte) {
-	hashChunks := HashAllChunks(_chunks)
+func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag, *DigestSet) {
+	digestSet := HashAllChunks(_chunks)
 
 	var tag Tag
 	tag.Size = uint32(len(_chunks))
 	tag.G = make(map[uint32]*pbc.Element, tag.Size)
 
 	for i := uint32(0); i < tag.Size; i++ {
-		e1 := _param.SetFromHash(hashChunks[i])
+		e1 := _param.SetFromHash(digestSet.Get(i))
 		e2 := _param.SetFromHash(_chunks[i])
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
 		tag.G[i] = _param.PowZn(e4, _privKey)
 	}
 
-	return tag, hashChunks
+	return tag, digestSet
 }
