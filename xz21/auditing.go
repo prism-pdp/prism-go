@@ -18,8 +18,12 @@ type AuditingReqData struct {
 }
 
 type AuditingLog struct {
-	ChalData ChalData `json:'chal'`
-	ProofData ProofData `json:'proof'`
+	Req AuditingReq `json:'req'`
+	Result bool `json:'result'`
+}
+
+type AuditingLogData struct {
+	ReqData AuditingReqData `json:'req'`
 	Result bool `json:'result'`
 }
 
@@ -55,11 +59,26 @@ func (this *AuditingReqData) ImportProof(_param *PairingParam) Proof {
 	return this.ProofData.Import(_param)
 }
 
-func (this *AuditingLog) Import(_src *XZ21AuditingLog) error {
+func (this *AuditingLog) Export() AuditingLogData {
+	var data AuditingLogData
+	data.ReqData = this.Req.Export()
+	data.Result = this.Result
+	return data
+}
+
+func (this *AuditingLogData) Import(_param *PairingParam) AuditingLog {
+	var obj AuditingLog
+	obj.Req = this.ReqData.Import(_param)
+	obj.Result = this.Result
+	return obj
+}
+
+
+func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	var err error
-	this.ChalData, err = DecodeToChalData(_src.Chal)
+	this.ReqData.ChalData, err = DecodeToChalData(_src.Chal)
 	if err != nil { return err }
-	this.ProofData, err = DecodeToProofData(_src.Proof)
+	this.ReqData.ProofData, err = DecodeToProofData(_src.Proof)
 	if err != nil { return err }
 	this.Result = _src.Result
 
