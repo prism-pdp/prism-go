@@ -37,7 +37,7 @@ func (this *AuditingReqData) Import(_param *PairingParam) AuditingReq {
 	return obj
 }
 
-func (this *AuditingReqData) ToXZ21(_src *XZ21AuditingReq) error {
+func (this *AuditingReqData) LoadFromXZ21(_src *XZ21AuditingReq) error {
 	var err error
 	this.ChalData, err = DecodeToChalData(_src.Chal)
 	if err != nil { return err }
