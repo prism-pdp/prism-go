@@ -10,32 +10,46 @@ import (
 
 type Tag struct {
 	Size uint32
-	G []*pbc.Element // gamma
+	G map[uint32]*pbc.Element // gamma
 }
 
 type TagData struct {
 	Size uint32
-	G [][]byte // gamma
+	G map[uint32][]byte // gamma
 }
 
 func (this *Tag) Export() TagData {
 	var data TagData
-	data.Size = uint32(len(this.G))
-	data.G = make([][]byte, data.Size)
+	data.Size = this.Size
+	data.G = make(map[uint32][]byte)
 	for i, v := range this.G {
 		data.G[i] = v.Bytes()
 	}
 	return data
 }
 
-func (this *TagData) Import(_param *PairingParam) Tag {
+func (this *TagData) _import(_param *PairingParam, _targetList []uint32) Tag {
 	var obj Tag
-	obj.Size = uint32(len(this.G))
-	obj.G = make([]*pbc.Element, obj.Size)
-	for i, v := range this.G {
-		obj.G[i] = _param.Pairing.NewG1().SetBytes(v)
+	obj.Size = this.Size
+	obj.G = make(map[uint32]*pbc.Element)
+	for _, i := range _targetList {
+		obj.G[i] = _param.Pairing.NewG1().SetBytes(this.G[i])
 	}
 	return obj
+}
+
+func (this *TagData) ImportAll(_param *PairingParam) Tag {
+	targetList := make([]uint32, this.Size)
+	for i := uint32(0); i < this.Size; i++ {
+		targetList[i] = i
+	}
+	return this._import(_param, targetList)
+}
+
+func (this *TagData) ImportSubset(_param *PairingParam, _chal *Chal) Tag {
+	setA := GenA(_chal.K1, _chal.C, this.Size)
+	tag := this._import(_param, setA)
+	return tag
 }
 
 func SplitData(_data []byte, _chunkNum uint32) ([][]byte, error) {
@@ -96,7 +110,7 @@ func GenTag(_param *PairingParam, _privKey *pbc.Element, _chunks [][]byte) (Tag,
 
 	var tag Tag
 	tag.Size = uint32(len(_chunks))
-	tag.G = make([]*pbc.Element, tag.Size)
+	tag.G = make(map[uint32]*pbc.Element, tag.Size)
 
 	for i := uint32(0); i < tag.Size; i++ {
 		e1 := _param.SetFromHash(hashChunks[i])

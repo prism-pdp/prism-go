@@ -1,7 +1,9 @@
 package xz21
 
 import (
+	"fmt"
 	"bytes"
+	"errors"
 	"encoding/gob"
 	"math/big"
 	"math/rand"
@@ -42,7 +44,8 @@ type AuditingLog struct {
 
 func GenChal(_param *PairingParam, _chunkNum uint32) Chal {
 	var chal Chal
-	chal.C = (rand.Uint32() % _chunkNum) + 1
+	r := rand.Uint32()
+	chal.C = (r % _chunkNum) + 1
 	chal.K1 = _param.Pairing.NewZr().Rand()
 	chal.K2 = _param.Pairing.NewZr().Rand()
 	return chal
@@ -150,11 +153,11 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunk [][]byte) Proof {
 }
 
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt.go#L98
-func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte, _chal *Chal, _proof *Proof, _pubKey *pbc.Element) bool {
+func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte, _chal *Chal, _proof *Proof, _pubKey *pbc.Element) (bool, error) {
 
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
-	n := uint32(len(_tag.G))
+	n := _tag.Size
 
 	setA := GenA(_chal.K1, _chal.C, n)
 	setV := GenV(_chal.K2, _chal.C, _param)
@@ -164,9 +167,12 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte,
 		v := setV[i]
 
 		// Left
-		t1 := _tag.G[a]
-		t2 := _param.PowZn(t1, v)
-		left = _param.Mul(left, t2)
+		if t1, ok := _tag.G[a]; ok {
+			t2 := _param.PowZn(t1, v)
+			left = _param.Mul(left, t2)
+		} else {
+			return false, errors.New(fmt.Sprintf("Invalid tags (index:%d)\n", a))
+		}
 
 		// Right
 		if digest, ok := _hashChunks[a]; ok {
@@ -174,7 +180,7 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte,
 			m2 := _param.PowZn(m1, v)
 			right  = _param.Mul(right, m2)
 		} else {
-			return false
+			return false, errors.New(fmt.Sprintf("Invalid digests (index:%d)\n", a))
 		}
 	}
 
@@ -184,7 +190,7 @@ func VerifyProof(_param *PairingParam, _tag *Tag, _hashChunks map[uint32][]byte,
 	lhs := _param.Pairing.NewGT().Pair(left, _param.G)
 	rhs := _param.Pairing.NewGT().Pair(right, _pubKey)
 
-	return lhs.Equals(rhs)
+	return lhs.Equals(rhs), nil
 }
 
 func GenA(_k1 *pbc.Element, _c uint32, _chunkSize uint32) []uint32 {
