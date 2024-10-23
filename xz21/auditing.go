@@ -76,9 +76,9 @@ func (this *AuditingLogData) Import(_param *PairingParam) AuditingLog {
 
 func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	var err error
-	this.ReqData.ChalData, err = DecodeToChalData(_src.Chal)
+	this.ReqData.ChalData, err = DecodeToChalData(_src.Req.Chal)
 	if err != nil { return err }
-	this.ReqData.ProofData, err = DecodeToProofData(_src.Proof)
+	this.ReqData.ProofData, err = DecodeToProofData(_src.Req.Proof)
 	if err != nil { return err }
 	this.Result = _src.Result
 
