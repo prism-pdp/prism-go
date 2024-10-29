@@ -74,7 +74,7 @@ func GenTags(_param *PairingParam, _privKey *pbc.Element, _chunkSet *ChunkSet) (
 
 	for i := uint32(0); i < tagSet.Size; i++ {
 		e1 := _param.SetFromHash(digestSet.Get(i))
-		e2 := _param.SetFromHash(_chunkSet.Get(i))
+		e2 := _param.SetFromHash(digestSet.Get(i))
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
 		tagSet.Tag[i] = _param.PowZn(e4, _privKey)
