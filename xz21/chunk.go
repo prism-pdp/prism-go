@@ -70,6 +70,11 @@ func (this *ChunkSet) Hash() *DigestSet {
 	return this.HashByIndex(listIndex)
 }
 
+func (this *ChunkSet) HashByChal(_chal *Chal) *DigestSet {
+	setA := GenA(_chal, this.Size())
+	return this.HashByIndex(setA)
+}
+
 func (this *ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {
 	digestSet := NewDigestSet()
 	b := make([]byte, 4)

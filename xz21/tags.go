@@ -53,16 +53,23 @@ func (this *TagDataSet) ImportSubset(_param *PairingParam, _chal *Chal) TagSet {
 	return tagSet
 }
 
-func (this *TagDataSet) Copy(_from *TagDataSet, _indexList []uint32) {
+func (this *TagDataSet) DuplicateByChal(_chal *Chal) *TagDataSet {
+	setA := GenA(_chal, this.Size)
+	return this.DuplicateByIndex(setA)
+}
+
+func (this *TagDataSet) DuplicateByIndex(_listIndex []uint32) *TagDataSet {
+	newSet := NewTagDataSet()
 	// Size
-	this.Size = _from.Size
+	newSet.Size = this.Size
 	// Tag
-	for _, i := range _indexList {
-		if _, ok := this.TagData[i]; !ok {
-			this.TagData[i] = make([]byte, len(_from.TagData[i]))
-			copy(this.TagData[i], _from.TagData[i])
+	for _, i := range _listIndex {
+		if _, ok := newSet.TagData[i]; !ok {
+			newSet.TagData[i] = make([]byte, len(this.TagData[i]))
+			copy(newSet.TagData[i], this.TagData[i])
 		}
 	}
+	return newSet
 }
 
 func GenTags(_param *PairingParam, _privKey *pbc.Element, _chunkSet *ChunkSet) (TagSet, *DigestSet) {
