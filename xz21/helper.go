@@ -6,7 +6,7 @@ func MakeSubset(_data []byte, _tagDataSet *TagDataSet, _chal *Chal) (*DigestSet,
 	numChunk := chunkSet.Size()
 	setA := GenA(_chal, numChunk)
 
-	digestSubSet := HashChunks(chunkSet, setA)
+	digestSubSet := chunkSet.HashByIndex(setA)
 
 	tagDataSubset := NewTagDataSet()
 	tagDataSubset.Size = _tagDataSet.Size

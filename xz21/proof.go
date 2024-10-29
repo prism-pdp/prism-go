@@ -45,7 +45,7 @@ func DecodeToProofData(_b []byte) (ProofData, error) {
 }
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt_test.go#L47
 func GenProof(_param *PairingParam, _chal *Chal, _chunkSet *ChunkSet) Proof {
-	digestSet := HashAllChunks(_chunkSet)
+	digestSet := _chunkSet.Hash()
 
 	n := digestSet.Size()
 

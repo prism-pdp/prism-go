@@ -66,7 +66,7 @@ func (this *TagDataSet) Copy(_from *TagDataSet, _indexList []uint32) {
 }
 
 func GenTags(_param *PairingParam, _privKey *pbc.Element, _chunkSet *ChunkSet) (TagSet, *DigestSet) {
-	digestSet := HashAllChunks(_chunkSet)
+	digestSet := _chunkSet.Hash()
 
 	var tagSet TagSet
 	tagSet.Size = _chunkSet.Size()

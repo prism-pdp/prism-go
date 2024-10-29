@@ -1,5 +1,11 @@
 package xz21
 
+import(
+	"slices"
+	"crypto/sha256"
+	"encoding/binary"
+)
+
 type ChunkSet struct {
 	blocks map[uint32][]byte
 }
@@ -53,4 +59,26 @@ func (this *ChunkSet) Get(_index uint32) []byte {
 
 func (this *ChunkSet) Size() uint32 {
 	return uint32(len(this.blocks))
+}
+
+func (this *ChunkSet) Hash() *DigestSet {
+	numChunk := this.Size()
+	listIndex := make([]uint32, numChunk)
+	for i := uint32(0); i < numChunk; i++ {
+		listIndex[i] = i
+	}
+	return this.HashByIndex(listIndex)
+}
+
+func (this *ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {
+	digestSet := NewDigestSet()
+	b := make([]byte, 4)
+
+	for _, i := range _listIndex {
+		binary.LittleEndian.PutUint32(b, i)
+		digest := sha256.Sum256(slices.Concat(this.Get(i), b))
+		digestSet.Set(i, digest[:])
+	}
+
+	return digestSet
 }
