@@ -68,6 +68,7 @@ func TestAuditing(t *testing.T) {
 	}
 	// SP generates proof with data owned by itself.
 	var digestSubset *DigestSet
+	var tagDataSubset *TagDataSet
 	{
 		var proof Proof
 
@@ -79,6 +80,8 @@ func TestAuditing(t *testing.T) {
 		digestSubset, proof = GenProof(&param, &chal, chunkNum, data)
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()
+		// Export tags to be sent to TPA
+		tagDataSubset = tagDataSet.DuplicateSubset(chunkNum, &chal)
 	}
 	// TPA verifies proof with tag and public key of SU.
 	var result bool
@@ -90,12 +93,8 @@ func TestAuditing(t *testing.T) {
 		pkSU := pkDataSU.Import(&param)
 		auditingReq := auditingReqData.Import(&param)
 
-		// Receive data from SU
-		tagDataSubset := tagDataSet.DuplicateSubset(chunkNum, &auditingReq.Chal)
-		assert.NoError(t, err)
-
 		// Verify proof
-		tagSubset := tagDataSubset.ImportAll(&param) // TODO: Rename ImportAll
+		tagSubset := tagDataSubset.Import(&param)
 		result, err = auditingReq.VerifyProof(&param, chunkNum, &tagSubset, digestSubset, pkSU.Key)
 		assert.NoError(t, err)
 	}

@@ -29,7 +29,7 @@ func (this *TagSet) Export() TagDataSet {
 	return data
 }
 
-func (this *TagDataSet) _import(_param *PairingParam, _targetList []uint32) TagSet {
+func (this *TagDataSet) ImportByIndex(_param *PairingParam, _targetList []uint32) TagSet {
 	var obj TagSet
 	obj.Size = this.Size
 	obj.Tag = make(map[uint32]*pbc.Element)
@@ -39,17 +39,17 @@ func (this *TagDataSet) _import(_param *PairingParam, _targetList []uint32) TagS
 	return obj
 }
 
-func (this *TagDataSet) ImportAll(_param *PairingParam) TagSet {
+func (this *TagDataSet) Import(_param *PairingParam) TagSet {
 	targetList := make([]uint32, 0, this.Size)
 	for k, _ := range this.TagData {
 		targetList = append(targetList, k)
 	}
-	return this._import(_param, targetList)
+	return this.ImportByIndex(_param, targetList)
 }
 
 func (this *TagDataSet) ImportSubset(_param *PairingParam, _chunkNum uint32, _chal *Chal) TagSet {
 	setA := _chal.GenA(_chunkNum)
-	tagSet := this._import(_param, setA)
+	tagSet := this.ImportByIndex(_param, setA)
 	return tagSet
 }
 
