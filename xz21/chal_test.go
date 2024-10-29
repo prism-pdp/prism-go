@@ -9,7 +9,7 @@ func TestChal(t *testing.T) {
 	chunkNum := uint32(100)
 
 	param := GenPairingParam()
-	chal := NewChal(&param, chunkNum)
+	chal := NewChal(param, chunkNum)
 	assert.LessOrEqual(t, chal.C, chunkNum)
 	assert.NotEqual(t, chal.C, uint32(0))
 

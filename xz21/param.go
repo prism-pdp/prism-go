@@ -14,24 +14,24 @@ type PairingParam struct {
 	U       *pbc.Element
 }
 
-func GenPairingParam() PairingParam {
+func GenPairingParam() *PairingParam {
 	var obj PairingParam
 	obj.P = pbc.GenerateA(uint32(160), uint32(512))
 	obj.Pairing = obj.P.NewPairing()
 	obj.G = obj.Pairing.NewG1().Rand()
 	obj.U = obj.Pairing.NewG1().Rand()
-	return obj
+	return &obj
 }
 
-func (this *PairingParam) ToXZ21Param() XZ21Param {
+func (this *PairingParam) ToXZ21Param() *XZ21Param {
 	var xz21Param XZ21Param
 	xz21Param.P = this.P.String()
 	xz21Param.U = this.U.Bytes()
 	xz21Param.G = this.G.Bytes()
-	return xz21Param
+	return &xz21Param
 }
 
-func GenParamFromXZ21Param(_xz21Param *XZ21Param) PairingParam {
+func GenParamFromXZ21Param(_xz21Param *XZ21Param) *PairingParam {
 	var err error
 	var param PairingParam
 
@@ -43,7 +43,7 @@ func GenParamFromXZ21Param(_xz21Param *XZ21Param) PairingParam {
 	param.G = param.Pairing.NewG1().SetBytes(_xz21Param.G)
 	param.U = param.Pairing.NewG1().SetBytes(_xz21Param.U)
 
-	return param
+	return &param
 }
 
 func (this *PairingParam) Save(_path string) {

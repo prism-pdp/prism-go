@@ -15,16 +15,16 @@ type ProofData struct {
 	Mu []byte `json:'mu'`
 }
 
-func (this *Proof) Export() ProofData {
+func (this *Proof) Export() *ProofData {
 	var data ProofData
 	data.Mu = this.Mu.Bytes()
-	return data
+	return &data
 }
 
-func (this *ProofData) Import(_param *PairingParam) Proof {
+func (this *ProofData) Import(_param *PairingParam) *Proof {
 	var obj Proof
 	obj.Mu = _param.Pairing.NewZr().SetBytes(this.Mu)
-	return obj
+	return &obj
 }
 
 func (this *ProofData) Encode() ([]byte, error) {
@@ -35,16 +35,16 @@ func (this *ProofData) Encode() ([]byte, error) {
     return buf.Bytes(), nil
 }
 
-func DecodeToProofData(_b []byte) (ProofData, error) {
+func DecodeToProofData(_b []byte) (*ProofData, error) {
 	var proofData ProofData
 	dec := gob.NewDecoder(bytes.NewReader(_b))
 	err := dec.Decode(&proofData)
-	if err != nil { return ProofData{}, err }
+	if err != nil { return nil, err }
 
-	return proofData, nil
+	return &proofData, nil
 }
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt_test.go#L47
-func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte) (*DigestSet, Proof) {
+func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte) (*DigestSet, *Proof) {
 	setA := _chal.GenA(_chunkNum)
 	setV := _chal.GenV(_param)
 
@@ -59,6 +59,6 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte)
 		proof.Mu = _param.Pairing.NewZr().Add(proof.Mu, mu)
 	}
 
-	return digestSet, proof
+	return digestSet, &proof
 }
 

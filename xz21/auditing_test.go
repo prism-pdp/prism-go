@@ -17,7 +17,7 @@ func TestAuditing(t *testing.T) {
 	// Setup Phase
 	// =================================
 	// TPA generates param for pairing.
-	var xz21Param XZ21Param
+	var xz21Param *XZ21Param
 	{
 		param := GenPairingParam()
 		xz21Param = param.ToXZ21Param()
@@ -28,9 +28,9 @@ func TestAuditing(t *testing.T) {
 	var skDataSU PrivateKeyData
 	{
 		// Load param
-		param := GenParamFromXZ21Param(&xz21Param)
+		param := GenParamFromXZ21Param(xz21Param)
 		// Generate key pair
-		pk, sk := GenPairingKey(&param)
+		pk, sk := GenPairingKey(param)
 		pkDataSU = pk.Export()
 		skDataSU = sk.Export()
 	}
@@ -43,12 +43,12 @@ func TestAuditing(t *testing.T) {
 	var chunkNum uint32 = 8
 	{
 		// Load param
-		param := GenParamFromXZ21Param(&xz21Param)
+		param := GenParamFromXZ21Param(xz21Param)
 		// Read key from file
-		skSU := skDataSU.Import(&param)
+		skSU := skDataSU.Import(param)
 		// Generate tag
 		chunkSet := GenChunkSet(data, chunkNum)
-		tag, _ := GenTags(&param, skSU.Key, chunkSet)
+		tag, _ := GenTags(param, skSU.Key, chunkSet)
 		// Export data to be sent to SP
 		tagDataSet = tag.Export()
 	}
@@ -60,9 +60,9 @@ func TestAuditing(t *testing.T) {
 	// SU generates challenge for deduplication.
 	{
 		// Load param
-		param := GenParamFromXZ21Param(&xz21Param)
+		param := GenParamFromXZ21Param(xz21Param)
 		// Generate challenge for deduplication
-		chal := NewChal(&param, tagDataSet.Size)
+		chal := NewChal(param, tagDataSet.Size)
 		// Export data to be sent to TPA
 		auditingReqData.ChalData = chal.Export()
 	}
@@ -70,32 +70,32 @@ func TestAuditing(t *testing.T) {
 	var digestSubset *DigestSet
 	var tagDataSubset *TagDataSet
 	{
-		var proof Proof
+		var proof *Proof
 
 		// Load param
-		param := GenParamFromXZ21Param(&xz21Param)
+		param := GenParamFromXZ21Param(xz21Param)
 		// Receive chalData from SU
-		chal := auditingReqData.ImportChal(&param)
+		chal := auditingReqData.ChalData.Import(param)
 		// Generate proof
-		digestSubset, proof = GenProof(&param, &chal, chunkNum, data)
+		digestSubset, proof = GenProof(param, chal, chunkNum, data)
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()
 		// Export tags to be sent to TPA
-		tagDataSubset = tagDataSet.DuplicateSubset(chunkNum, &chal)
+		tagDataSubset = tagDataSet.DuplicateSubset(chunkNum, chal)
 	}
 	// TPA verifies proof with tag and public key of SU.
 	var result bool
 	{
 		// Load param
-		param := GenParamFromXZ21Param(&xz21Param)
+		param := GenParamFromXZ21Param(xz21Param)
 
 		// Read data from public
-		pkSU := pkDataSU.Import(&param)
-		auditingReq := auditingReqData.Import(&param)
+		pkSU := pkDataSU.Import(param)
+		auditingReq := auditingReqData.Import(param)
 
 		// Verify proof
-		tagSubset := tagDataSubset.Import(&param)
-		result, err = auditingReq.VerifyProof(&param, chunkNum, &tagSubset, digestSubset, pkSU.Key)
+		tagSubset := tagDataSubset.Import(param)
+		result, err = auditingReq.VerifyProof(param, chunkNum, tagSubset, digestSubset, pkSU.Key)
 		assert.NoError(t, err)
 	}
 

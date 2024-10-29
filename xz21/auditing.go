@@ -8,37 +8,37 @@ import (
 )
 
 type AuditingReq struct {
-	Chal Chal `json:'chal'`
-	Proof Proof `json:'proof'`
+	Chal *Chal `json:'chal'`
+	Proof *Proof `json:'proof'`
 }
 
 type AuditingReqData struct {
-	ChalData ChalData `json:'chal'`
-	ProofData ProofData `json:'proof'`
+	ChalData *ChalData `json:'chal'`
+	ProofData *ProofData `json:'proof'`
 }
 
 type AuditingLog struct {
-	Req AuditingReq `json:'req'`
+	Req *AuditingReq `json:'req'`
 	Result bool `json:'result'`
 }
 
 type AuditingLogData struct {
-	ReqData AuditingReqData `json:'req'`
+	ReqData *AuditingReqData `json:'req'`
 	Result bool `json:'result'`
 }
 
-func (this *AuditingReq) Export() AuditingReqData {
+func (this *AuditingReq) Export() *AuditingReqData {
 	var data AuditingReqData
 	data.ChalData = this.Chal.Export()
 	data.ProofData = this.Proof.Export()
-	return data
+	return &data
 }
 
-func (this *AuditingReqData) Import(_param *PairingParam) AuditingReq {
+func (this *AuditingReqData) Import(_param *PairingParam) *AuditingReq {
 	var obj AuditingReq
 	obj.Chal = this.ChalData.Import(_param)
 	obj.Proof = this.ProofData.Import(_param)
-	return obj
+	return &obj
 }
 
 func (this *AuditingReqData) LoadFromXZ21(_src *XZ21AuditingReq) error {
@@ -51,26 +51,18 @@ func (this *AuditingReqData) LoadFromXZ21(_src *XZ21AuditingReq) error {
 	return nil
 }
 
-func (this *AuditingReqData) ImportChal(_param *PairingParam) Chal {
-	return this.ChalData.Import(_param)
-}
-
-func (this *AuditingReqData) ImportProof(_param *PairingParam) Proof {
-	return this.ProofData.Import(_param)
-}
-
-func (this *AuditingLog) Export() AuditingLogData {
+func (this *AuditingLog) Export() *AuditingLogData {
 	var data AuditingLogData
 	data.ReqData = this.Req.Export()
 	data.Result = this.Result
-	return data
+	return &data
 }
 
-func (this *AuditingLogData) Import(_param *PairingParam) AuditingLog {
+func (this *AuditingLogData) Import(_param *PairingParam) *AuditingLog {
 	var obj AuditingLog
 	obj.Req = this.ReqData.Import(_param)
 	obj.Result = this.Result
-	return obj
+	return &obj
 }
 
 

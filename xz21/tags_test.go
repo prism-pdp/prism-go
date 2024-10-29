@@ -12,13 +12,13 @@ func TestGenTags(t *testing.T) {
 	assert.NoError(t, err)
 
 	param := GenPairingParam()
-	_, sk := GenPairingKey(&param)
+	_, sk := GenPairingKey(param)
 
 	chunkSet := GenChunkSet(data, 5)
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(chunkSet.Size()), uint32(5))
 
-	tag, digestSet := GenTags(&param, sk.Key, chunkSet)
+	tag, digestSet := GenTags(param, sk.Key, chunkSet)
 	assert.Equal(t, tag.Size, uint32(5))
 	assert.Equal(t, digestSet.Size(), uint32(5))
 	assert.Equal(t, len(tag.Tag), 5)

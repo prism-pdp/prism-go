@@ -21,29 +21,29 @@ type ChalData struct {
 	K2 []byte `json:'k2'`
 }
 
-func NewChal(_param *PairingParam, _chunkNum uint32) Chal {
+func NewChal(_param *PairingParam, _chunkNum uint32) *Chal {
 	var chal Chal
 	r := rand.Uint32()
 	chal.C = (r % _chunkNum) + 1
 	chal.K1 = _param.Pairing.NewZr().Rand()
 	chal.K2 = _param.Pairing.NewZr().Rand()
-	return chal
+	return &chal
 }
 
-func (this *Chal) Export() ChalData {
+func (this *Chal) Export() *ChalData {
 	var data ChalData
 	data.C = this.C
 	data.K1 = this.K1.Bytes()
 	data.K2 = this.K2.Bytes()
-	return data
+	return &data
 }
 
-func (this *ChalData) Import(_param *PairingParam) Chal {
+func (this *ChalData) Import(_param *PairingParam) *Chal {
 	var obj Chal
 	obj.C = this.C
 	obj.K1 = _param.Pairing.NewZr().SetBytes(this.K1)
 	obj.K2 = _param.Pairing.NewZr().SetBytes(this.K2)
-	return obj
+	return &obj
 }
 
 func (this *ChalData) Encode() ([]byte, error) {
@@ -54,13 +54,13 @@ func (this *ChalData) Encode() ([]byte, error) {
     return buf.Bytes(), nil
 }
 
-func DecodeToChalData(_b []byte) (ChalData, error) {
+func DecodeToChalData(_b []byte) (*ChalData, error) {
 	var chalData ChalData
 	dec := gob.NewDecoder(bytes.NewReader(_b))
 	err := dec.Decode(&chalData)
-	if err != nil { return ChalData{}, err }
+	if err != nil { return nil, err }
 
-	return chalData, nil
+	return &chalData, nil
 }
 
 func (this *Chal) GenA(_chunkNum uint32) []uint32 {

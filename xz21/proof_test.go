@@ -18,9 +18,9 @@ func TestProof(t *testing.T) {
 	chunkNum := uint32(6)
 
 	param := GenPairingParam()
-	chal := NewChal(&param, chunkNum)
+	chal := NewChal(param, chunkNum)
 
-	_, proof := GenProof(&param, &chal, chunkNum, data)
+	_, proof := GenProof(param, chal, chunkNum, data)
 
 	proofData1 := proof.Export()
 	proofBytes, err := proofData1.Encode()
