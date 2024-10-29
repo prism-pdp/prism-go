@@ -47,7 +47,7 @@ func DecodeToProofData(_b []byte) (ProofData, error) {
 func GenProof(_param *PairingParam, _chal *Chal, _chunkSet *ChunkSet) Proof {
 	digestSet := _chunkSet.Hash()
 
-	n := digestSet.Size()
+	n := digestSet.TotalNum
 
 	setA := GenA(_chal, n)
 	setV := GenV(_chal, _param)

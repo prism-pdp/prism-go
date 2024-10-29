@@ -15,9 +15,9 @@ func TestProof(t *testing.T) {
 		{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49},
 		{0x50, 0x51, 0x52, 0x53},
 	}
-	chunkSet := NewChunkSet()
-	chunkSet.Fill(data)
 	chunkNum := uint32(6)
+	chunkSet := NewChunkSet(chunkNum)
+	chunkSet.Fill(data)
 
 	param := GenPairingParam()
 	chal := NewChal(&param, chunkNum)

@@ -71,7 +71,7 @@ func TestAuditing(t *testing.T) {
 	var digestSubset *DigestSet
 	{
 		var chal Chal
-		var chunkSet *ChunkSet
+		var chunkSubset *ChunkSet
 		var param PairingParam
 		var proof Proof
 
@@ -80,13 +80,12 @@ func TestAuditing(t *testing.T) {
 		// Receive chalData from SU
 		chal = auditingReqData.ImportChal(&param)
 		// Generate proof
-		// chunkSet, _ = SplitData(data, tagSize)
-		chunkSet = GenChunkSet(data, tagSize)
-		proof = GenProof(&param, &chal, chunkSet)
+		chunkSubset = GenChunkSubsetByChal(data, tagSize, &chal)
+		proof = GenProof(&param, &chal, chunkSubset)
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()
 		// Export digestSubset to be sent to TPA
-		digestSubset = chunkSet.HashByChal(&chal)
+		digestSubset = chunkSubset.Hash()
 	}
 	// TPA verifies proof with tag and public key of SU.
 	var result bool

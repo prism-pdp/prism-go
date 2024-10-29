@@ -8,11 +8,13 @@ import(
 
 type ChunkSet struct {
 	blocks map[uint32][]byte
+	TotalNum uint32
 }
 
-func NewChunkSet() *ChunkSet {
+func NewChunkSet(_totalNum uint32) *ChunkSet {
 	this := ChunkSet{}
 	this.blocks = make(map[uint32][]byte)
+	this.TotalNum = _totalNum
 	return &this
 }
 
@@ -21,8 +23,13 @@ func GenChunkSet(_data []byte, _chunkNum uint32) *ChunkSet {
 	return GenChunkSubset(_data, _chunkNum, keepList)
 }
 
+func GenChunkSubsetByChal(_data []byte, _chunkNum uint32, _chal *Chal) *ChunkSet {
+	setA := GenA(_chal, _chunkNum)
+	return GenChunkSubset(_data, _chunkNum, setA)
+}
+
 func GenChunkSubset(_data []byte, _chunkNum uint32, _keepList []uint32) *ChunkSet {
-	chunkSet := NewChunkSet()
+	chunkSet := NewChunkSet(_chunkNum)
 	dataSize := uint32(len(_data))
 
 	chunkSize  := dataSize / _chunkNum
@@ -61,12 +68,12 @@ func (this *ChunkSet) Size() uint32 {
 	return uint32(len(this.blocks))
 }
 
+func (this *ChunkSet) IndexList() []uint32 {
+	return MapKeys(this.blocks)
+}
+
 func (this *ChunkSet) Hash() *DigestSet {
-	numChunk := this.Size()
-	listIndex := make([]uint32, numChunk)
-	for i := uint32(0); i < numChunk; i++ {
-		listIndex[i] = i
-	}
+	listIndex := MapKeys(this.blocks)
 	return this.HashByIndex(listIndex)
 }
 
@@ -76,7 +83,7 @@ func (this *ChunkSet) HashByChal(_chal *Chal) *DigestSet {
 }
 
 func (this *ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {
-	digestSet := NewDigestSet()
+	digestSet := NewDigestSet(this.TotalNum)
 	b := make([]byte, 4)
 
 	for _, i := range _listIndex {
