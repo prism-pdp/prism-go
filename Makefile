@@ -12,6 +12,7 @@ test/clean:
 	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) clean -testcache
 
 test:
+	test -f xz21/testdata/dummy.data || dd if=/dev/zero bs=1M count=100 > xz21/testdata/dummy.data 2> /dev/null
 	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test -v ./xz21
 
 test1:
