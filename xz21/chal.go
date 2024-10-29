@@ -21,11 +21,6 @@ type ChalData struct {
 	K2 []byte `json:'k2'`
 }
 
-type ChalSet struct {
-	SetA []uint32
-	SetV []*pbc.Element
-}
-
 func NewChal(_param *PairingParam, _chunkNum uint32) Chal {
 	var chal Chal
 	r := rand.Uint32()
@@ -66,13 +61,6 @@ func DecodeToChalData(_b []byte) (ChalData, error) {
 	if err != nil { return ChalData{}, err }
 
 	return chalData, nil
-}
-
-func (this *Chal) GenChalSet(_param *PairingParam, _chunkNum uint32) *ChalSet {
-	chalSet := ChalSet{}
-	chalSet.SetA = this.GenA(_chunkNum)
-	chalSet.SetV = this.GenV(_param)
-	return &chalSet
 }
 
 func (this *Chal) GenA(_chunkNum uint32) []uint32 {

@@ -47,13 +47,15 @@ func (this *TagDataSet) ImportAll(_param *PairingParam) TagSet {
 	return this._import(_param, targetList)
 }
 
-func (this *TagDataSet) ImportSubset(_param *PairingParam, _chalSet *ChalSet) TagSet {
-	tagSet := this._import(_param, _chalSet.SetA)
+func (this *TagDataSet) ImportSubset(_param *PairingParam, _chunkNum uint32, _chal *Chal) TagSet {
+	setA := _chal.GenA(_chunkNum)
+	tagSet := this._import(_param, setA)
 	return tagSet
 }
 
-func (this *TagDataSet) DuplicateSubset(_chalSet *ChalSet) *TagDataSet {
-	return this.DuplicateByIndex(_chalSet.SetA)
+func (this *TagDataSet) DuplicateSubset(_chunkNum uint32, _chal *Chal) *TagDataSet {
+	setA := _chal.GenA(_chunkNum)
+	return this.DuplicateByIndex(setA)
 }
 
 func (this *TagDataSet) DuplicateByIndex(_listIndex []uint32) *TagDataSet {

@@ -21,8 +21,8 @@ func GenChunkSet(_data []byte, _chunkNum uint32) *ChunkSet {
 	return GenChunkSubsetByIndex(_data, _chunkNum, keepList)
 }
 
-func GenChunkSubset(_data []byte, _chunkNum uint32, _chalSet *ChalSet) *ChunkSet {
-	keepList := _chalSet.SetA
+func GenChunkSubset(_data []byte, _chunkNum uint32, _chal *Chal) *ChunkSet {
+	keepList := _chal.GenA(_chunkNum)
 	return GenChunkSubsetByIndex(_data, _chunkNum, keepList)
 }
 
@@ -73,11 +73,6 @@ func (this *ChunkSet) IndexList() []uint32 {
 func (this *ChunkSet) Hash() *DigestSet {
 	listIndex := MapKeys(this.blocks)
 	return this.HashByIndex(listIndex)
-}
-
-func (this *ChunkSet) HashSubset(_chalSet *ChalSet) *DigestSet {
-	setA := _chalSet.SetA
-	return this.HashByIndex(setA)
 }
 
 func (this *ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {

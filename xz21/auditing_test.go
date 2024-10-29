@@ -69,29 +69,20 @@ func TestAuditing(t *testing.T) {
 	// SP generates proof with data owned by itself.
 	var digestSubset *DigestSet
 	{
-		var chalSet *ChalSet
-		var chunkSubset *ChunkSet
 		var proof Proof
 
 		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 		// Receive chalData from SU
 		chal := auditingReqData.ImportChal(&param)
-		// Generate ChalSet
-		chalSet = chal.GenChalSet(&param, chunkNum)
 		// Generate proof
-		chunkSubset = GenChunkSubset(data, chunkNum, chalSet)
-		proof = GenProof(&param, chalSet, &chal, chunkSubset) // TODO
+		digestSubset, proof = GenProof(&param, &chal, chunkNum, data)
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()
-		// Export digestSubset to be sent to TPA
-		digestSubset = chunkSubset.Hash()
 	}
 	// TPA verifies proof with tag and public key of SU.
 	var result bool
 	{
-		var chalSet *ChalSet
-
 		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 
@@ -99,16 +90,13 @@ func TestAuditing(t *testing.T) {
 		pkSU := pkDataSU.Import(&param)
 		auditingReq := auditingReqData.Import(&param)
 
-		// Generate ChalSet
-		chalSet = auditingReq.Chal.GenChalSet(&param, chunkNum)
-
 		// Receive data from SU
-		tagDataSubset := tagDataSet.DuplicateSubset(chalSet)
+		tagDataSubset := tagDataSet.DuplicateSubset(chunkNum, &auditingReq.Chal)
 		assert.NoError(t, err)
 
 		// Verify proof
 		tagSubset := tagDataSubset.ImportAll(&param) // TODO: Rename ImportAll
-		result, err = auditingReq.VerifyProof(&param, chalSet, &tagSubset, digestSubset, pkSU.Key)
+		result, err = auditingReq.VerifyProof(&param, chunkNum, &tagSubset, digestSubset, pkSU.Key)
 		assert.NoError(t, err)
 	}
 

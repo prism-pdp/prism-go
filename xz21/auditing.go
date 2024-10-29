@@ -85,13 +85,16 @@ func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	return nil
 }
 
-func (this *AuditingReq) VerifyProof(_param *PairingParam, _chalSet *ChalSet, _tagSet *TagSet, _digestSet *DigestSet, _pubKey *pbc.Element) (bool, error) {
+func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _tagSet *TagSet, _digestSet *DigestSet, _pubKey *pbc.Element) (bool, error) {
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
 
+	setA := this.Chal.GenA(_chunkNum)
+	setV := this.Chal.GenV(_param)
+
 	for i := uint32(0); i < this.Chal.C; i++ {
-		a := _chalSet.SetA[i]
-		v := _chalSet.SetV[i]
+		a := setA[i]
+		v := setV[i]
 
 		// Left
 		if t1, ok := _tagSet.Tag[a]; ok {
