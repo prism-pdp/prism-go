@@ -46,7 +46,7 @@ func TestAuditing(t *testing.T) {
 		// Read key from file
 		skSU := skDataSU.Import(&param)
 		// Generate tag
-		chunkSet, _ := SplitData(data, 8)
+		chunkSet := GenChunkSet(data, 8)
 		tag, _ := GenTags(&param, skSU.Key, chunkSet)
 		// Export data to be sent to SP
 		tagDataSet = tag.Export()
@@ -79,7 +79,8 @@ func TestAuditing(t *testing.T) {
 		// Receive chalData from SU
 		chal = auditingReqData.ImportChal(&param)
 		// Generate proof
-		chunkSet, _ = SplitData(data, tagSize)
+		// chunkSet, _ = SplitData(data, tagSize)
+		chunkSet = GenChunkSet(data, tagSize)
 		proof = GenProof(&param, &chal, chunkSet)
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()

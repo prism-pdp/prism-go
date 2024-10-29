@@ -14,7 +14,7 @@ func TestGenTags(t *testing.T) {
 	param := GenPairingParam()
 	_, sk := GenPairingKey(&param)
 
-	chunkSet, err := SplitData(data, 5)
+	chunkSet := GenChunkSet(data, 5)
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(chunkSet.Size()), uint32(5))
 

@@ -1,30 +1,7 @@
 package xz21
 
-func SplitData(_data []byte, _chunkNum uint32) (*ChunkSet, error) {
-	chunkSet := NewChunkSet()
-	dataSize := uint32(len(_data))
-
-	chunkSize  := dataSize / _chunkNum
-	chunkSizeR := dataSize % _chunkNum
-
-	var s, e uint32
-
-	for i := uint32(0); i < _chunkNum; i++ {
-		s = i * chunkSize
-		e = s + chunkSize
-		if i == (_chunkNum - 1) {
-			e = e + chunkSizeR
-		}
-		// chunkSet = append(chunkSet, _data[s:e])
-		chunkSet.Set(i, _data[s:e])
-	}
-
-	return chunkSet, nil
-}
-
 func MakeSubset(_data []byte, _tagDataSet *TagDataSet, _chal *Chal) (*DigestSet, *TagDataSet, error) {
-	chunkSet, err := SplitData(_data, _tagDataSet.Size)
-	if err != nil { return nil, nil, err}
+	chunkSet := GenChunkSet(_data, _tagDataSet.Size)
 
 	numChunk := chunkSet.Size()
 	setA := GenA(_chal, numChunk)
@@ -48,4 +25,12 @@ func MapKeys[K comparable, V any](m map[K]V) []K {
         result = append(result, key)
     }
     return result
+}
+
+func MakeList[T uint32](_num T) []T {
+	list := make([]T, _num)
+	for i := T(0); i < _num; i++ {
+		list[i] = i
+	}
+	return list
 }
