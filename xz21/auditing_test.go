@@ -40,13 +40,14 @@ func TestAuditing(t *testing.T) {
 	// =================================
 	// SU generates tag of data to be uploaded
 	var tagDataSet TagDataSet
+	var chunkNum uint32 = 8
 	{
 		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 		// Read key from file
 		skSU := skDataSU.Import(&param)
 		// Generate tag
-		chunkSet := GenChunkSet(data, 8)
+		chunkSet := GenChunkSet(data, chunkNum)
 		tag, _ := GenTags(&param, skSU.Key, chunkSet)
 		// Export data to be sent to SP
 		tagDataSet = tag.Export()
@@ -57,7 +58,6 @@ func TestAuditing(t *testing.T) {
 	// =================================
 	var auditingReqData AuditingReqData
 	// SU generates challenge for deduplication.
-	var tagSize uint32
 	{
 		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
@@ -65,23 +65,23 @@ func TestAuditing(t *testing.T) {
 		chal := NewChal(&param, tagDataSet.Size)
 		// Export data to be sent to TPA
 		auditingReqData.ChalData = chal.Export()
-		tagSize = tagDataSet.Size
 	}
 	// SP generates proof with data owned by itself.
 	var digestSubset *DigestSet
 	{
-		var chal Chal
+		var chalSet *ChalSet
 		var chunkSubset *ChunkSet
-		var param PairingParam
 		var proof Proof
 
 		// Load param
-		param = GenParamFromXZ21Param(&xz21Param)
+		param := GenParamFromXZ21Param(&xz21Param)
 		// Receive chalData from SU
-		chal = auditingReqData.ImportChal(&param)
+		chal := auditingReqData.ImportChal(&param)
+		// Generate ChalSet
+		chalSet = chal.GenChalSet(&param, chunkNum)
 		// Generate proof
-		chunkSubset = GenChunkSubsetByChal(data, tagSize, &chal)
-		proof = GenProof(&param, &chal, chunkSubset)
+		chunkSubset = GenChunkSubset(data, chunkNum, chalSet)
+		proof = GenProof(&param, chalSet, &chal, chunkSubset) // TODO
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()
 		// Export digestSubset to be sent to TPA
@@ -90,6 +90,8 @@ func TestAuditing(t *testing.T) {
 	// TPA verifies proof with tag and public key of SU.
 	var result bool
 	{
+		var chalSet *ChalSet
+
 		// Load param
 		param := GenParamFromXZ21Param(&xz21Param)
 
@@ -97,13 +99,16 @@ func TestAuditing(t *testing.T) {
 		pkSU := pkDataSU.Import(&param)
 		auditingReq := auditingReqData.Import(&param)
 
+		// Generate ChalSet
+		chalSet = auditingReq.Chal.GenChalSet(&param, chunkNum)
+
 		// Receive data from SU
-		tagDataSubset := tagDataSet.DuplicateByChal(&auditingReq.Chal)
+		tagDataSubset := tagDataSet.DuplicateSubset(chalSet)
 		assert.NoError(t, err)
 
 		// Verify proof
-		tagSubset := tagDataSubset.ImportAll(&param)
-		result, err = VerifyProof(&param, &tagSubset, digestSubset, &auditingReq.Chal, &auditingReq.Proof, pkSU.Key)
+		tagSubset := tagDataSubset.ImportAll(&param) // TODO: Rename ImportAll
+		result, err = auditingReq.VerifyProof(&param, chalSet, &tagSubset, digestSubset, pkSU.Key)
 		assert.NoError(t, err)
 	}
 

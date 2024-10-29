@@ -44,19 +44,14 @@ func DecodeToProofData(_b []byte) (ProofData, error) {
 	return proofData, nil
 }
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt_test.go#L47
-func GenProof(_param *PairingParam, _chal *Chal, _chunkSet *ChunkSet) Proof {
+func GenProof(_param *PairingParam, _chalSet *ChalSet, _chal *Chal, _chunkSet *ChunkSet) Proof {
 	digestSet := _chunkSet.Hash()
-
-	n := digestSet.TotalNum
-
-	setA := GenA(_chal, n)
-	setV := GenV(_chal, _param)
 
 	var proof Proof
 	proof.Mu = _param.Pairing.NewZr().Set0()
 	for i := uint32(0); i < _chal.C; i++ {
-		m := digestSet.Get(setA[i])
-		mu := _param.Pairing.NewZr().MulBig(setV[i], _param.SetFromHash(m).X())
+		m := digestSet.Get(_chalSet.SetA[i])
+		mu := _param.Pairing.NewZr().MulBig(_chalSet.SetV[i], _param.SetFromHash(m).X())
 		proof.Mu = _param.Pairing.NewZr().Add(proof.Mu, mu)
 	}
 

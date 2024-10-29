@@ -21,8 +21,9 @@ func TestProof(t *testing.T) {
 
 	param := GenPairingParam()
 	chal := NewChal(&param, chunkNum)
+	chalSet := chal.GenChalSet(&param, chunkNum)
 
-	proof := GenProof(&param, &chal, chunkSet)
+	proof := GenProof(&param, chalSet, &chal, chunkSet)
 
 	proofData1 := proof.Export()
 	proofBytes, err := proofData1.Encode()

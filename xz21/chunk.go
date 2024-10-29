@@ -8,27 +8,25 @@ import(
 
 type ChunkSet struct {
 	blocks map[uint32][]byte
-	TotalNum uint32
 }
 
 func NewChunkSet(_totalNum uint32) *ChunkSet {
 	this := ChunkSet{}
 	this.blocks = make(map[uint32][]byte)
-	this.TotalNum = _totalNum
 	return &this
 }
 
 func GenChunkSet(_data []byte, _chunkNum uint32) *ChunkSet {
 	keepList := MakeList(_chunkNum)	
-	return GenChunkSubset(_data, _chunkNum, keepList)
+	return GenChunkSubsetByIndex(_data, _chunkNum, keepList)
 }
 
-func GenChunkSubsetByChal(_data []byte, _chunkNum uint32, _chal *Chal) *ChunkSet {
-	setA := GenA(_chal, _chunkNum)
-	return GenChunkSubset(_data, _chunkNum, setA)
+func GenChunkSubset(_data []byte, _chunkNum uint32, _chalSet *ChalSet) *ChunkSet {
+	keepList := _chalSet.SetA
+	return GenChunkSubsetByIndex(_data, _chunkNum, keepList)
 }
 
-func GenChunkSubset(_data []byte, _chunkNum uint32, _keepList []uint32) *ChunkSet {
+func GenChunkSubsetByIndex(_data []byte, _chunkNum uint32, _keepList []uint32) *ChunkSet {
 	chunkSet := NewChunkSet(_chunkNum)
 	dataSize := uint32(len(_data))
 
@@ -77,20 +75,18 @@ func (this *ChunkSet) Hash() *DigestSet {
 	return this.HashByIndex(listIndex)
 }
 
-func (this *ChunkSet) HashByChal(_chal *Chal) *DigestSet {
-	setA := GenA(_chal, this.Size())
+func (this *ChunkSet) HashSubset(_chalSet *ChalSet) *DigestSet {
+	setA := _chalSet.SetA
 	return this.HashByIndex(setA)
 }
 
 func (this *ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {
-	digestSet := NewDigestSet(this.TotalNum)
+	digestSet := NewDigestSet()
 	b := make([]byte, 4)
-
 	for _, i := range _listIndex {
 		binary.LittleEndian.PutUint32(b, i)
 		digest := sha256.Sum256(slices.Concat(this.Get(i), b))
 		digestSet.Set(i, digest[:])
 	}
-
 	return digestSet
 }
