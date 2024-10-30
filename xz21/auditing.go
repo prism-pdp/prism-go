@@ -75,7 +75,7 @@ func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	return nil
 }
 
-func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _tagSet *TagSet, _digestSet *DigestSet, _pubKey *PublicKey) (bool, error) {
+func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _setTag TagSet, _digestSet *DigestSet, _pubKey *PublicKey) (bool, error) {
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
 
@@ -87,7 +87,7 @@ func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _ta
 		v := setV[i]
 
 		// Left
-		if t1, ok := _tagSet.Tag[a]; ok {
+		if t1, ok := _setTag[a]; ok {
 			t2 := _param.PowZn(t1, v)
 			left = _param.Mul(left, t2)
 		} else {
