@@ -6,28 +6,20 @@ import(
 	"encoding/binary"
 )
 
-type ChunkSet struct {
-	blocks map[uint32][]byte
-}
+type ChunkSet map[uint32][]byte
 
-func NewChunkSet(_totalNum uint32) *ChunkSet {
-	this := ChunkSet{}
-	this.blocks = make(map[uint32][]byte)
-	return &this
-}
-
-func GenChunkSet(_data []byte, _chunkNum uint32) *ChunkSet {
+func GenChunkSet(_data []byte, _chunkNum uint32) ChunkSet {
 	keepList := MakeList(_chunkNum)	
 	return GenChunkSubsetByIndex(_data, _chunkNum, keepList)
 }
 
-func GenChunkSubset(_data []byte, _chunkNum uint32, _chal *Chal) *ChunkSet {
+func GenChunkSubset(_data []byte, _chunkNum uint32, _chal *Chal) ChunkSet {
 	keepList := _chal.GenA(_chunkNum)
 	return GenChunkSubsetByIndex(_data, _chunkNum, keepList)
 }
 
-func GenChunkSubsetByIndex(_data []byte, _chunkNum uint32, _keepList []uint32) *ChunkSet {
-	chunkSet := NewChunkSet(_chunkNum)
+func GenChunkSubsetByIndex(_data []byte, _chunkNum uint32, _keepList []uint32) ChunkSet {
+	setChunk := make(ChunkSet)
 	dataSize := uint32(len(_data))
 
 	chunkSize  := dataSize / _chunkNum
@@ -41,46 +33,46 @@ func GenChunkSubsetByIndex(_data []byte, _chunkNum uint32, _keepList []uint32) *
 		if i == (_chunkNum - 1) {
 			e = e + chunkSizeR
 		}
-		chunkSet.Set(i, _data[s:e])
+		setChunk.Set(i, _data[s:e])
 	}
 
-	return chunkSet
+	return setChunk
 }
 
-func (this *ChunkSet) Set(_index uint32, _data []byte) {
-	this.blocks[_index] = make([]byte, len(_data))
-	copy(this.blocks[_index], _data)
+func (this ChunkSet) Base() map[uint32][]byte {
+	return (map[uint32][]byte)(this)
 }
 
-func (this *ChunkSet) Fill(_data [][]byte) {
+func (this ChunkSet) Set(_index uint32, _data []byte) {
+	this[_index] = make([]byte, len(_data))
+	copy(this[_index], _data)
+}
+
+func (this ChunkSet) Fill(_data [][]byte) {
 	for i := 0; i < len(_data); i++ {
 		this.Set(uint32(i), _data[i])
 	}
 }
 
-func (this *ChunkSet) Get(_index uint32) []byte {
-	return this.blocks[_index]
+func (this ChunkSet) Size() uint32 {
+	return uint32(len(this.Base()))
 }
 
-func (this *ChunkSet) Size() uint32 {
-	return uint32(len(this.blocks))
+func (this ChunkSet) IndexList() []uint32 {
+	return MapKeys(this.Base())
 }
 
-func (this *ChunkSet) IndexList() []uint32 {
-	return MapKeys(this.blocks)
-}
-
-func (this *ChunkSet) Hash() *DigestSet {
-	listIndex := MapKeys(this.blocks)
+func (this ChunkSet) Hash() *DigestSet {
+	listIndex := MapKeys(this.Base())
 	return this.HashByIndex(listIndex)
 }
 
-func (this *ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {
+func (this ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {
 	digestSet := NewDigestSet()
 	b := make([]byte, 4)
 	for _, i := range _listIndex {
 		binary.LittleEndian.PutUint32(b, i)
-		digest := sha256.Sum256(slices.Concat(this.Get(i), b))
+		digest := sha256.Sum256(slices.Concat(this[i], b))
 		digestSet.Set(i, digest[:])
 	}
 	return digestSet

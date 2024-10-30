@@ -71,11 +71,11 @@ func (this TagDataSet) DuplicateByIndex(_listIndex []uint32) TagDataSet {
 	return newSet
 }
 
-func GenTags(_param *PairingParam, _privKey *PrivateKey, _chunkSet *ChunkSet) (TagSet, *DigestSet) {
-	digestSet := _chunkSet.Hash()
+func GenTags(_param *PairingParam, _privKey *PrivateKey, _setChunk ChunkSet) (TagSet, *DigestSet) {
+	digestSet := _setChunk.Hash()
 	setTag := make(TagSet)
 
-	for i := uint32(0); i < _chunkSet.Size(); i++ {
+	for i := uint32(0); i < _setChunk.Size(); i++ {
 		e1 := _param.SetFromHash(digestSet.Get(i))
 		e2 := _param.SetFromHash(digestSet.Get(i))
 		e3 := _param.PowBig(_param.U, e2.X())

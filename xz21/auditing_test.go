@@ -47,8 +47,8 @@ func TestAuditing(t *testing.T) {
 		// Read key from file
 		skSU := skDataSU.Import(param)
 		// Generate tag
-		chunkSet := GenChunkSet(data, chunkNum)
-		tag, _ := GenTags(param, skSU, chunkSet)
+		setChunk := GenChunkSet(data, chunkNum)
+		tag, _ := GenTags(param, skSU, setChunk)
 		// Export data to be sent to SP
 		setTagData = tag.Export()
 	}
