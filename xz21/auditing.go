@@ -3,8 +3,6 @@ package xz21
 import (
 	"fmt"
 	"errors"
-
-	"github.com/Nik-U/pbc" // v0.0.0-20181205041846-3e516ca0c5d6
 )
 
 type AuditingReq struct {
@@ -77,7 +75,7 @@ func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	return nil
 }
 
-func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _tagSet *TagSet, _digestSet *DigestSet, _pubKey *pbc.Element) (bool, error) {
+func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _tagSet *TagSet, _digestSet *DigestSet, _pubKey *PublicKey) (bool, error) {
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
 
@@ -110,7 +108,7 @@ func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _ta
 	right = _param.Mul(right, u)
 
 	lhs := _param.Pairing.NewGT().Pair(left, _param.G)
-	rhs := _param.Pairing.NewGT().Pair(right, _pubKey)
+	rhs := _param.Pairing.NewGT().Pair(right, _pubKey.Elem())
 
 	return lhs.Equals(rhs), nil
 }

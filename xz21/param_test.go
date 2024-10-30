@@ -24,13 +24,13 @@ func TestSign(t *testing.T) {
 	hash := sha256.Sum256(data)
 
 	h := param.Pairing.NewG1().SetFromHash(hash[:])
-	sig := param.Pairing.NewG1().PowZn(h, sk.Key)
+	sig := param.Pairing.NewG1().PowZn(h, sk.Elem())
 
 	lhs := param.Pairing.NewGT().Pair(sig, param.G)
-	rhs := param.Pairing.NewGT().Pair(h, pk.Key)
+	rhs := param.Pairing.NewGT().Pair(h, pk.Elem())
 	assert.True(t, lhs.Equals(rhs))
 
 	pkDummy, _ := GenPairingKey(param)
-	rhsDummy := param.Pairing.NewGT().Pair(h, pkDummy.Key)
+	rhsDummy := param.Pairing.NewGT().Pair(h, pkDummy.Elem())
 	assert.False(t, lhs.Equals(rhsDummy))
 }

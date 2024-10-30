@@ -48,7 +48,7 @@ func TestAuditing(t *testing.T) {
 		skSU := skDataSU.Import(param)
 		// Generate tag
 		chunkSet := GenChunkSet(data, chunkNum)
-		tag, _ := GenTags(param, skSU.Key, chunkSet)
+		tag, _ := GenTags(param, skSU, chunkSet)
 		// Export data to be sent to SP
 		tagDataSet = tag.Export()
 	}
@@ -95,7 +95,7 @@ func TestAuditing(t *testing.T) {
 
 		// Verify proof
 		tagSubset := tagDataSubset.Import(param)
-		result, err = auditingReq.VerifyProof(param, chunkNum, tagSubset, digestSubset, pkSU.Key)
+		result, err = auditingReq.VerifyProof(param, chunkNum, tagSubset, digestSubset, pkSU)
 		assert.NoError(t, err)
 	}
 

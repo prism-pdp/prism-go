@@ -12,6 +12,6 @@ func TestPairingKey(t * testing.T) {
 
 	// Generate and save key
 	pk1, sk1 := GenPairingKey(param1)
-	assert.NotNil(t, pk1.Key)
-	assert.NotNil(t, sk1.Key)
+	assert.NotNil(t, pk1)
+	assert.NotNil(t, sk1)
 }
