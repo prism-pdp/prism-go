@@ -23,11 +23,7 @@ func TestProof(t *testing.T) {
 	_, proof := GenProof(param, chal, chunkNum, data)
 
 	proofData1 := proof.Export()
-	proofBytes, err := proofData1.Encode()
-	assert.NoError(t, err)
+	proofData2 := LoadProofData(proofData1.Base())
 
-	proofData2, err := DecodeToProofData(proofBytes)
-	assert.NoError(t, err)
-
-	assert.Equal(t, proofData1.Mu, proofData2.Mu)
+	assert.Equal(t, proofData1.Base(), proofData2.Base())
 }

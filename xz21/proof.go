@@ -1,64 +1,50 @@
 package xz21
 
 import (
-	"bytes"
-	"encoding/gob"
-
 	"github.com/Nik-U/pbc" // v0.0.0-20181205041846-3e516ca0c5d6
 )
 
-type Proof struct {
-	Mu *pbc.Element
+type Proof pbc.Element
+type ProofData []byte
+
+func (this *Proof) Base() *pbc.Element {
+	return (*pbc.Element)(this)
 }
 
-type ProofData struct {
-	Mu []byte `json:'mu'`
+func (this ProofData) Base() []byte {
+	return ([]byte)(this)
 }
 
-func (this *Proof) Export() *ProofData {
-	var data ProofData
-	data.Mu = this.Mu.Bytes()
-	return &data
+func (this *Proof) Export() ProofData {
+	data := (ProofData)(this.Base().Bytes())
+	return data
 }
 
-func (this *ProofData) Import(_param *PairingParam) *Proof {
-	var obj Proof
-	obj.Mu = _param.Pairing.NewZr().SetBytes(this.Mu)
-	return &obj
+func (this ProofData) Import(_param *PairingParam) *Proof {
+	proof := (*Proof)(_param.Pairing.NewZr().SetBytes(this))
+	return proof
 }
 
-func (this *ProofData) Encode() ([]byte, error) {
-	var buf bytes.Buffer
-    err := gob.NewEncoder(&buf).Encode(this)
-	if err != nil { return []byte{}, err }
-
-    return buf.Bytes(), nil
+func LoadProofData(_src []byte) ProofData {
+	proofData := make([]byte, len(_src))
+	copy(proofData, _src)
+	return proofData
 }
 
-func DecodeToProofData(_b []byte) (*ProofData, error) {
-	var proofData ProofData
-	dec := gob.NewDecoder(bytes.NewReader(_b))
-	err := dec.Decode(&proofData)
-	if err != nil { return nil, err }
-
-	return &proofData, nil
-}
 // https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt_test.go#L47
 func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte) (DigestSet, *Proof) {
 	setA := _chal.GenA(_chunkNum)
 	setV := _chal.GenV(_param)
 
 	subsetChunk := GenChunkSubsetByIndex(_data, _chunkNum, setA)
-	setDigest := subsetChunk.Hash()
+	subsetDigest := subsetChunk.Hash()
 
-	var proof Proof
-	proof.Mu = _param.Pairing.NewZr().Set0()
+	proof := (*Proof)(_param.Pairing.NewZr().Set0())
 	for i := uint32(0); i < _chal.C; i++ {
-		m := setDigest[setA[i]]
+		m := subsetDigest[setA[i]]
 		mu := _param.Pairing.NewZr().MulBig(setV[i], _param.SetFromHash(m).X())
-		proof.Mu = _param.Pairing.NewZr().Add(proof.Mu, mu)
+		proof = (*Proof)(_param.Pairing.NewZr().Add(proof.Base(), mu))
 	}
 
-	return setDigest, &proof
+	return subsetDigest, proof
 }
-
