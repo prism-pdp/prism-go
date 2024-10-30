@@ -18,6 +18,14 @@ func (this *PrivateKey) Base() *pbc.Element {
 	return (*pbc.Element)(this)
 }
 
+func (this *PublicKeyData) Base() []byte {
+	return ([]byte)(*this)
+}
+
+func (this *PrivateKeyData) Base() []byte {
+	return ([]byte)(*this)
+}
+
 func (this *PublicKey) Export() PublicKeyData {
 	var data PublicKeyData
 	data = this.Base().Bytes()
