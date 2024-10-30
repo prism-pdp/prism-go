@@ -67,7 +67,7 @@ func TestAuditing(t *testing.T) {
 		auditingReqData.ChalData = chal.Export()
 	}
 	// SP generates proof with data owned by itself.
-	var digestSubset *DigestSet
+	var subsetDigest DigestSet
 	var subsetTagData TagDataSet
 	{
 		var proof *Proof
@@ -77,7 +77,7 @@ func TestAuditing(t *testing.T) {
 		// Receive chalData from SU
 		chal := auditingReqData.ChalData.Import(param)
 		// Generate proof
-		digestSubset, proof = GenProof(param, chal, chunkNum, data)
+		subsetDigest, proof = GenProof(param, chal, chunkNum, data)
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()
 		// Export tags to be sent to TPA
@@ -95,7 +95,7 @@ func TestAuditing(t *testing.T) {
 
 		// Verify proof
 		tagSubset := subsetTagData.Import(param)
-		result, err = auditingReq.VerifyProof(param, chunkNum, tagSubset, digestSubset, pkSU)
+		result, err = auditingReq.VerifyProof(param, chunkNum, tagSubset, subsetDigest, pkSU)
 		assert.NoError(t, err)
 	}
 

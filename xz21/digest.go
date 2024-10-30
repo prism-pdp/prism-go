@@ -1,24 +1,16 @@
 package xz21
 
-type DigestSet struct {
-	blocks map[uint32][]byte
+type DigestSet map[uint32][]byte
+
+func (this DigestSet) Base() map[uint32][]byte {
+	return (map[uint32][]byte)(this)
 }
 
-func NewDigestSet() *DigestSet {
-	this := DigestSet{}
-	this.blocks = make(map[uint32][]byte)
-	return &this
+func (this DigestSet) Set(_index uint32, _data []byte) {
+	this[_index] = make([]byte, len(_data))
+	copy(this[_index], _data)
 }
 
-func (this *DigestSet) Set(_index uint32, _data []byte) {
-	this.blocks[_index] = make([]byte, len(_data))
-	copy(this.blocks[_index], _data)
-}
-
-func (this *DigestSet) Get(_index uint32) []byte {
-	return this.blocks[_index]
-}
-
-func (this *DigestSet) Size() uint32 {
-	return uint32(len(this.blocks))
+func (this DigestSet) Size() uint32 {
+	return uint32(len(this.Base()))
 }

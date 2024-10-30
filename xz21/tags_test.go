@@ -18,7 +18,7 @@ func TestGenTags(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, uint32(setChunk.Size()), uint32(5))
 
-	setTag, digestSet := GenTags(param, sk, setChunk)
-	assert.Equal(t, digestSet.Size(), uint32(5))
+	setTag, setDigest := GenTags(param, sk, setChunk)
+	assert.Equal(t, setDigest.Size(), uint32(5))
 	assert.Equal(t, setTag.Size(), uint32(5))
 }

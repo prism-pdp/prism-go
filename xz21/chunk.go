@@ -62,18 +62,18 @@ func (this ChunkSet) IndexList() []uint32 {
 	return MapKeys(this.Base())
 }
 
-func (this ChunkSet) Hash() *DigestSet {
+func (this ChunkSet) Hash() DigestSet {
 	listIndex := MapKeys(this.Base())
 	return this.HashByIndex(listIndex)
 }
 
-func (this ChunkSet) HashByIndex(_listIndex []uint32) *DigestSet {
-	digestSet := NewDigestSet()
+func (this ChunkSet) HashByIndex(_listIndex []uint32) DigestSet {
+	setDigest := make(DigestSet)
 	b := make([]byte, 4)
 	for _, i := range _listIndex {
 		binary.LittleEndian.PutUint32(b, i)
 		digest := sha256.Sum256(slices.Concat(this[i], b))
-		digestSet.Set(i, digest[:])
+		setDigest.Set(i, digest[:])
 	}
-	return digestSet
+	return setDigest
 }
