@@ -80,7 +80,7 @@ func GenTags(_param *PairingParam, _privKey *PrivateKey, _setChunk ChunkSet) (Ta
 		e2 := _param.SetFromHash(setDigest[i])
 		e3 := _param.PowBig(_param.U, e2.X())
 		e4 := _param.Mul(e1, e3)
-		setTag[i] = _param.PowZn(e4, _privKey.Elem())
+		setTag[i] = _param.PowZn(e4, _privKey.Base())
 	}
 
 	return setTag, setDigest

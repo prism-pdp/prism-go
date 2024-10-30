@@ -108,7 +108,7 @@ func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _se
 	right = _param.Mul(right, u)
 
 	lhs := _param.Pairing.NewGT().Pair(left, _param.G)
-	rhs := _param.Pairing.NewGT().Pair(right, _pubKey.Elem())
+	rhs := _param.Pairing.NewGT().Pair(right, _pubKey.Base())
 
 	return lhs.Equals(rhs), nil
 }

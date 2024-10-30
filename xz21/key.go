@@ -10,23 +10,23 @@ type PrivateKey pbc.Element
 type PublicKeyData []byte
 type PrivateKeyData []byte
 
-func (this *PublicKey) Elem() *pbc.Element {
+func (this *PublicKey) Base() *pbc.Element {
 	return (*pbc.Element)(this)
 }
 
-func (this *PrivateKey) Elem() *pbc.Element {
+func (this *PrivateKey) Base() *pbc.Element {
 	return (*pbc.Element)(this)
 }
 
 func (this *PublicKey) Export() PublicKeyData {
 	var data PublicKeyData
-	data = this.Elem().Bytes()
+	data = this.Base().Bytes()
 	return data
 }
 
 func (this *PrivateKey) Export() PrivateKeyData {
 	var data PrivateKeyData
-	data = this.Elem().Bytes()
+	data = this.Base().Bytes()
 	return data
 }
 

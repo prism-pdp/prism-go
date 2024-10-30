@@ -48,8 +48,8 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte)
 	setA := _chal.GenA(_chunkNum)
 	setV := _chal.GenV(_param)
 
-	chunkSubset := GenChunkSubsetByIndex(_data, _chunkNum, setA)
-	setDigest := chunkSubset.Hash()
+	subsetChunk := GenChunkSubsetByIndex(_data, _chunkNum, setA)
+	setDigest := subsetChunk.Hash()
 
 	var proof Proof
 	proof.Mu = _param.Pairing.NewZr().Set0()
