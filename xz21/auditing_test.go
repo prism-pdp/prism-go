@@ -95,7 +95,7 @@ func TestAuditing(t *testing.T) {
 
 		// Verify proof
 		tagSubset := subsetTagData.Import(param)
-		result, err = auditingReq.VerifyProof(param, chunkNum, tagSubset, subsetDigest, pkSU)
+		result, err = VerifyProof(param, chunkNum, tagSubset, subsetDigest, auditingReq.Chal, auditingReq.Proof, pkSU)
 		assert.NoError(t, err)
 	}
 

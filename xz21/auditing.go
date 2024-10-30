@@ -75,14 +75,14 @@ func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	return nil
 }
 
-func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _setTag TagSet, _setDigest DigestSet, _pubKey *PublicKey) (bool, error) {
+func VerifyProof(_param *PairingParam, _chunkNum uint32, _setTag TagSet, _setDigest DigestSet, _chal *Chal, _proof *Proof, _pubKey *PublicKey) (bool, error) {
 	left  := _param.Pairing.NewG1().Set1()
 	right := _param.Pairing.NewG1().Set1()
 
-	setA := this.Chal.GenA(_chunkNum)
-	setV := this.Chal.GenV(_param)
+	setA := _chal.GenA(_chunkNum)
+	setV := _chal.GenV(_param)
 
-	for i := uint32(0); i < this.Chal.C; i++ {
+	for i := uint32(0); i < _chal.C; i++ {
 		a := setA[i]
 		v := setV[i]
 
@@ -104,7 +104,7 @@ func (this *AuditingReq) VerifyProof(_param *PairingParam, _chunkNum uint32, _se
 		}
 	}
 
-	u := _param.PowZn(_param.U, this.Proof.Base())
+	u := _param.PowZn(_param.U, _proof.Base())
 	right = _param.Mul(right, u)
 
 	lhs := _param.Pairing.NewGT().Pair(left, _param.G)
