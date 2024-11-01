@@ -77,7 +77,7 @@ func TestAuditing(t *testing.T) {
 		// Receive chalData from SU
 		chal := auditingReqData.ChalData.Import(param)
 		// Generate proof
-		subsetDigest, proof = GenProof(param, chal, chunkNum, data)
+		proof, subsetDigest, _ = GenProof(param, chal, chunkNum, data)
 		// Export data to be sent to TPA
 		auditingReqData.ProofData = proof.Export()
 		// Export tags to be sent to TPA

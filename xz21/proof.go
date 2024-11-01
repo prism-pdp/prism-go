@@ -31,8 +31,7 @@ func LoadProofData(_src []byte) ProofData {
 	return proofData
 }
 
-// https://github.com/es3ku/z22m2azuma/blob/main/sp/src/interfaces/crypt/crypt_test.go#L47
-func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte) (DigestSet, *Proof) {
+func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte) (*Proof, DigestSet, ChunkSet) {
 	setA := _chal.GenA(_chunkNum)
 	setV := _chal.GenV(_param)
 
@@ -46,5 +45,5 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte)
 		proof = (*Proof)(_param.Pairing.NewZr().Add(proof.Base(), mu))
 	}
 
-	return subsetDigest, proof
+	return proof, subsetDigest, subsetChunk
 }

@@ -20,7 +20,7 @@ func TestProof(t *testing.T) {
 	param := GenPairingParam()
 	chal := NewChal(param, chunkNum)
 
-	_, proof := GenProof(param, chal, chunkNum, data)
+	proof, _, _ := GenProof(param, chal, chunkNum, data)
 
 	proofData1 := proof.Export()
 	proofData2 := LoadProofData(proofData1.Base())
