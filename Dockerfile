@@ -20,6 +20,8 @@ RUN apt -y install \
 
 WORKDIR /app
 
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
 COPY ./go.mod /app/go.mod
 COPY ./go.sum /app/go.sum
 
