@@ -38,6 +38,11 @@ func (this *PrivateKey) Export() PrivateKeyData {
 	return data
 }
 
+func (this *PublicKeyData) Load(_key []byte) {
+	*this = (PublicKeyData)(make([]byte, len(_key)))
+	copy(this.Base(), _key)
+}
+
 func (this *PublicKeyData) Import(_param *PairingParam) *PublicKey {
 	key := _param.Pairing.NewG1().SetBytes([]byte(*this))
 	return (*PublicKey)(key)
