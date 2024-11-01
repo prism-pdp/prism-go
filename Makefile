@@ -3,18 +3,18 @@ IMAGE_NAME = dpduado-go
 .PHONY: test
 
 build-img:
-	docker build -t $(IMAGE_NAME) .
+	docker compose build go
 
 shell:
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build --entrypoint bash $(IMAGE_NAME)
+	docker compose run --entrypoint bash go
 
 test/clean:
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) clean -testcache
+	docker compose run go clean -testcache
 
 test:
 	$(MAKE) test/clean
 	dd if=/dev/zero bs=1M count=100 > xz21/testdata/dummy.data 2> /dev/null
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test -v ./xz21
+	docker compose run go test -v ./xz21
 
 test1:
 	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) clean -testcache
