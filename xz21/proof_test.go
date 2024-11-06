@@ -1,8 +1,10 @@
 package xz21
 
 import (
+	"fmt"
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/maps"
 )
 
 func TestProof(t *testing.T) {
@@ -29,4 +31,11 @@ func TestProof(t *testing.T) {
 	proofData2 := LoadProofData(proofData1.Base())
 
 	assert.Equal(t, proofData1.Base(), proofData2.Base())
+
+	fmt.Printf("chal.C: ")
+	fmt.Println(chal.C)
+	fmt.Printf("chal.K1: ")
+	fmt.Println(chal.K1.BigInt())
+	fmt.Printf("Block list: ")
+	fmt.Println(maps.Keys(subsetChunk))
 }
