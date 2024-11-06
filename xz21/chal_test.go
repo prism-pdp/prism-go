@@ -6,12 +6,12 @@ import (
 )
 
 func TestChal(t *testing.T) {
-	chunkNum := uint32(100)
+	chunkNum := uint32(50)
 
 	param := GenPairingParam()
-	chal := NewChal(param, chunkNum)
-	assert.LessOrEqual(t, chal.C, chunkNum)
-	assert.NotEqual(t, chal.C, uint32(0))
+	chal, err := NewChal(param, chunkNum, 0.85)
+	assert.NoError(t, err)
+	assert.Equal(t, chal.C, uint32(43))
 
 	chalData1 := chal.Export()
 	chalBytes, err := chalData1.Encode()

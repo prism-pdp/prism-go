@@ -18,9 +18,12 @@ func TestProof(t *testing.T) {
 	chunkNum := uint32(6)
 
 	param := GenPairingParam()
-	chal := NewChal(param, chunkNum)
+	chal, err := NewChal(param, chunkNum, 0.6)
+	assert.NoError(t, err)
 
-	proof, _, _ := GenProof(param, chal, chunkNum, data)
+	proof, subsetDigest, subsetChunk := GenProof(param, chal, chunkNum, data)
+	assert.Equal(t, len(subsetDigest), 4)
+	assert.Equal(t, len(subsetChunk), 4)
 
 	proofData1 := proof.Export()
 	proofData2 := LoadProofData(proofData1.Base())

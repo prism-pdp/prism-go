@@ -62,7 +62,8 @@ func TestAuditing(t *testing.T) {
 		// Load param
 		param := GenParamFromXZ21Param(xz21Param)
 		// Generate challenge for deduplication
-		chal := NewChal(param, setTagData.Size())
+		chal, err := NewChal(param, setTagData.Size(), 1.0)
+		assert.NoError(t, err)
 		// Export data to be sent to TPA
 		auditingReqData.ChalData = chal.Export()
 	}

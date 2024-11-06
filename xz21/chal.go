@@ -3,8 +3,10 @@ package xz21
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
+	"golang.org/x/exp/slices"
+	"math"
 	"math/big"
-	"math/rand"
 
 	"github.com/Nik-U/pbc" // v0.0.0-20181205041846-3e516ca0c5d6
 )
@@ -21,13 +23,16 @@ type ChalData struct {
 	K2 []byte `json:'k2'`
 }
 
-func NewChal(_param *PairingParam, _chunkNum uint32) *Chal {
+func NewChal(_param *PairingParam, _chunkNum uint32, _ratio float64) (*Chal, error) {
+	if _ratio > 1.0 {
+		return nil, fmt.Errorf("The _ratio argument must be less than or equal to 1.0 (_ratio:%f)", _ratio)
+	}
+
 	var chal Chal
-	r := rand.Uint32()
-	chal.C = (r % _chunkNum) + 1
+	chal.C = uint32(math.Ceil(_ratio * float64(_chunkNum)))
 	chal.K1 = _param.Pairing.NewZr().Rand()
 	chal.K2 = _param.Pairing.NewZr().Rand()
-	return &chal
+	return &chal, nil
 }
 
 func (this *Chal) Export() *ChalData {
@@ -64,12 +69,21 @@ func DecodeToChalData(_b []byte) (*ChalData, error) {
 }
 
 func (this *Chal) GenA(_chunkNum uint32) []uint32 {
-	setA := make([]uint32, this.C)
+	var setA []uint32
 	n := big.NewInt(int64(_chunkNum))
 	for i := uint32(0); i < this.C; i++ {
 		iBig := new(big.Int).SetUint64(uint64(i + 1))
-		setA[i] = hash1(iBig, this.K1, n)
+		h1 := hash1(iBig, this.K1, n)
+		for slices.Contains(setA, h1) {
+			h1 = uint32(math.Mod(float64(h1 + uint32(1)), float64(_chunkNum)))
+		}
+		setA = append(setA, h1)
 	}
+
+	if uint32(len(setA)) != this.C {
+		panic(fmt.Errorf("Invalid setA length (len:%d)", len(setA)))
+	}
+
 	return setA
 }
 
