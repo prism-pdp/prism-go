@@ -68,6 +68,10 @@ func DecodeToChalData(_b []byte) (*ChalData, error) {
 	return &chalData, nil
 }
 
+func (this *Chal) GetTargetBlockCount() uint32 {
+	return this.C
+}
+
 func (this *Chal) GenA(_chunkNum uint32) []uint32 {
 	var setA []uint32
 	n := big.NewInt(int64(_chunkNum))
@@ -80,7 +84,7 @@ func (this *Chal) GenA(_chunkNum uint32) []uint32 {
 		setA = append(setA, h1)
 	}
 
-	if uint32(len(setA)) != this.C {
+	if uint32(len(setA)) != this.GetTargetBlockCount() {
 		panic(fmt.Errorf("Invalid setA length (len:%d)", len(setA)))
 	}
 

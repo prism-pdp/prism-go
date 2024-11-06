@@ -11,7 +11,7 @@ func TestChal(t *testing.T) {
 	param := GenPairingParam()
 	chal, err := NewChal(param, chunkNum, 0.85)
 	assert.NoError(t, err)
-	assert.Equal(t, chal.C, uint32(43))
+	assert.Equal(t, chal.GetTargetBlockCount(), uint32(43))
 
 	chalData1 := chal.Export()
 	chalBytes, err := chalData1.Encode()
