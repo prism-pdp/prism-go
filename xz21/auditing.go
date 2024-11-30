@@ -97,6 +97,10 @@ func VerifyProof(_param *PairingParam, _chunkNum uint32, _setTag TagSet, _setDig
 		// Right
 		if digest := _setDigest[a]; digest != nil {
 			m1 := _param.SetFromHash(digest)
+			fmt.Println("===============")
+			fmt.Println(v)
+			fmt.Println(digest)
+			fmt.Println(m1)
 			m2 := _param.PowZn(m1, v)
 			right  = _param.Mul(right, m2)
 		} else {
