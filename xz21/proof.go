@@ -42,10 +42,6 @@ func GenProof(_param *PairingParam, _chal *Chal, _chunkNum uint32, _data []byte)
 	proof := (*Proof)(_param.Pairing.NewZr().Set0())
 	for i := uint32(0); i < _chal.C; i++ {
 		m := subsetDigest[setA[i]]
-		fmt.Println("===============")
-		fmt.Println(setA[i])
-		fmt.Println(setV[i])
-		fmt.Println(m)
 		mu := _param.Pairing.NewZr().MulBig(setV[i], _param.SetFromHash(m).X())
 		proof = (*Proof)(_param.Pairing.NewZr().Add(proof.Base(), mu))
 	}
