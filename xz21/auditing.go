@@ -3,74 +3,67 @@ package xz21
 import (
 	"fmt"
 	"errors"
+	"time"
 )
 
-type AuditingReq struct {
-	Chal *Chal `json:'chal'`
-	Proof *Proof `json:'proof'`
-}
-
-type AuditingReqData struct {
-	ChalData *ChalData `json:'chal'`
-	ProofData ProofData `json:'proof'`
-}
+const (
+	WaitingProof = iota
+	WaitingResult
+	DoneAuditing
+)
 
 type AuditingLog struct {
-	Req *AuditingReq `json:'req'`
+	Chal *Chal `json:'chal'`
+	Proof *Proof `json:'proof'`
 	Result bool `json:'result'`
+	Date   *time.Time `json:'date'`
+	Stage  uint8 `json:'stage'`
 }
 
 type AuditingLogData struct {
-	ReqData *AuditingReqData `json:'req'`
+	ChalData *ChalData `json:'chal'`
+	ProofData ProofData `json:'proof'`
 	Result bool `json:'result'`
-}
-
-func (this *AuditingReq) Export() *AuditingReqData {
-	var data AuditingReqData
-	data.ChalData = this.Chal.Export()
-	data.ProofData = this.Proof.Export()
-	return &data
-}
-
-func (this *AuditingReqData) Import(_param *PairingParam) *AuditingReq {
-	var obj AuditingReq
-	obj.Chal = this.ChalData.Import(_param)
-	obj.Proof = this.ProofData.Import(_param)
-	return &obj
-}
-
-func (this *AuditingReqData) LoadFromXZ21(_src *XZ21AuditingReq) error {
-	var err error
-	this.ChalData, err = DecodeToChalData(_src.Chal)
-	if err != nil { return err }
-	this.ProofData = LoadProofData(_src.Proof)
-	if err != nil { return err }
-
-	return nil
+	Date   string `json:'date'`
+	Stage  uint8 `json:'stage'`
 }
 
 func (this *AuditingLog) Export() *AuditingLogData {
 	var data AuditingLogData
-	data.ReqData = this.Req.Export()
+	data.ChalData = this.Chal.Export()
+	data.ProofData = this.Proof.Export()
 	data.Result = this.Result
+	data.Date = this.Date.Format(time.RFC3339)
+	data.Stage = this.Stage
 	return &data
 }
 
 func (this *AuditingLogData) Import(_param *PairingParam) *AuditingLog {
 	var obj AuditingLog
-	obj.Req = this.ReqData.Import(_param)
+	obj.Chal = this.ChalData.Import(_param)
+	obj.Proof = this.ProofData.Import(_param)
 	obj.Result = this.Result
+	if len(this.Date) > 0 {
+		t, err := time.Parse(time.RFC3339, this.Date)
+		if err != nil { panic(err) }
+		obj.Date = &t
+	} else {
+		obj.Date = nil
+	}
+	obj.Stage = this.Stage
 	return &obj
 }
 
 
 func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	var err error
-	this.ReqData.ChalData, err = DecodeToChalData(_src.Req.Chal)
+	this.ChalData, err = DecodeToChalData(_src.Chal)
 	if err != nil { return err }
-	this.ReqData.ProofData = LoadProofData(_src.Req.Proof)
+	this.ProofData = LoadProofData(_src.Proof)
 	if err != nil { return err }
 	this.Result = _src.Result
+	this.Date = time.Unix(_src.Date.Int64(), 0).Format(time.RFC3339)
+	this.Stage = _src.Stage
 
 	return nil
 }

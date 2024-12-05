@@ -56,7 +56,7 @@ func TestAuditing(t *testing.T) {
 	// =================================
 	// Auditing Phase
 	// =================================
-	var auditingReqData AuditingReqData
+	var auditingLogData AuditingLogData
 	// SU generates challenge for deduplication.
 	{
 		// Load param
@@ -65,7 +65,7 @@ func TestAuditing(t *testing.T) {
 		chal, err := NewChal(param, setTagData.Size(), 1.0)
 		assert.NoError(t, err)
 		// Export data to be sent to TPA
-		auditingReqData.ChalData = chal.Export()
+		auditingLogData.ChalData = chal.Export()
 	}
 	// SP generates proof with data owned by itself.
 	var subsetDigest DigestSet
@@ -76,11 +76,11 @@ func TestAuditing(t *testing.T) {
 		// Load param
 		param := GenParamFromXZ21Param(xz21Param)
 		// Receive chalData from SU
-		chal := auditingReqData.ChalData.Import(param)
+		chal := auditingLogData.ChalData.Import(param)
 		// Generate proof
 		proof, subsetDigest, _ = GenProof(param, chal, chunkNum, data)
 		// Export data to be sent to TPA
-		auditingReqData.ProofData = proof.Export()
+		auditingLogData.ProofData = proof.Export()
 		// Export tags to be sent to TPA
 		subsetTagData = setTagData.DuplicateSubset(chunkNum, chal)
 	}
@@ -92,11 +92,11 @@ func TestAuditing(t *testing.T) {
 
 		// Read data from public
 		pkSU := pkDataSU.Import(param)
-		auditingReq := auditingReqData.Import(param)
+		auditingLog := auditingLogData.Import(param)
 
 		// Verify proof
 		tagSubset := subsetTagData.Import(param)
-		result, err = VerifyProof(param, chunkNum, tagSubset, subsetDigest, auditingReq.Chal, auditingReq.Proof, pkSU)
+		result, err = VerifyProof(param, chunkNum, tagSubset, subsetDigest, auditingLog.Chal, auditingLog.Proof, pkSU)
 		assert.NoError(t, err)
 	}
 
