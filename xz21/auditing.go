@@ -62,7 +62,11 @@ func (this *AuditingLogData) LoadFromXZ21(_src *XZ21AuditingLog) error {
 	this.ProofData = LoadProofData(_src.Proof)
 	if err != nil { return err }
 	this.Result = _src.Result
-	this.Date = time.Unix(_src.Date.Int64(), 0).Format(time.RFC3339)
+	if _src.Date != nil {
+		this.Date = time.Unix(_src.Date.Int64(), 0).Format(time.RFC3339)
+	} else {
+		this.Date = ""
+	}
 	this.Stage = _src.Stage
 
 	return nil
