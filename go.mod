@@ -1,4 +1,4 @@
-module github.com/dpduado/dpduado-go
+module github.com/prism-pdp/prism-go
 
 go 1.22.2
 

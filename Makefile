@@ -1,4 +1,4 @@
-IMAGE_NAME = dpduado-go
+IMAGE_NAME = prism-go
 
 .PHONY: test
 

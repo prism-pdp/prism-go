@@ -1,14 +1,14 @@
-# dpduado-go
+# prism-go
 
 ## Description
 
-dpduado-go is a Go project for dpduado.
+prism-go is a Go project for prism.
 
 ## Tips for developers
 
 ### Go bindings
 
-This project uses Go bindings created in [dpduado-sol][link:dpduado-sol].
+This project uses Go bindings created in [prism-sol][link:prism-sol].
 If you update solidity codes, you should copy the Go bindings of updated codes to `sol` directory.
 
 ### Testing
@@ -20,4 +20,4 @@ You can run test with following command.
 make test
 ```
 
-[link:dpduado-sol]: https://github.com/dpduado/dpduado-sol "dpduado-sol"
+[link:prism-sol]: https://github.com/prism/prism-sol "prism-sol"

@@ -1,4 +1,4 @@
-package dpduado
+package prism
 
 import (
 	"testing"

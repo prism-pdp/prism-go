@@ -1,7 +1,7 @@
 services:
   go:
     build: .
-    image: dpduado/dpduado-go
+    image: prism/prism-go
     volumes:
       - .:/app
       - go-cache:/root/.cache/go-build
