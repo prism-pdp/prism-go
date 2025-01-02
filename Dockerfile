@@ -10,8 +10,8 @@ RUN apt -y install \
 	bison
 
 WORKDIR /usr/src/pbc-0.5.14
-ADD ./build/pbc-0.5.14.tar.gz /usr/src
-RUN ./configure \
+RUN curl -sSL https://crypto.stanford.edu/pbc/files/pbc-0.5.14.tar.gz | tar zx --strip-components 1 -C . \
+	&& ./configure \
 	&& make \
 	&& make install
 
