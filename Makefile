@@ -6,22 +6,16 @@ build-img:
 	docker compose build go
 
 shell:
-	docker compose run --entrypoint bash go
+	$(MAKE) run OPT="--entrypoint bash"
+
+run:
+	docker compose run --rm $(OPT) go $(CMD)
 
 test/clean:
-	docker compose run go clean -testcache
+	$(MAKE) run CMD="clean -testcache"
 
 test:
 	$(MAKE) test/clean
 	dd if=/dev/zero bs=1M count=100 > xz21/testdata/dummy.data 2> /dev/null
-	docker compose run go test -v ./xz21
+	$(MAKE) run CMD="test -v ./xz21"
 
-test1:
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) clean -testcache
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test ./xz21 -run Test1
-
-test2:
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test ./xz21 -run Test2
-
-test3:
-	docker run -it --rm -v .:/app -v /tmp/go-cache:/root/.cache/go-build $(IMAGE_NAME) test ./xz21 -run Test3
