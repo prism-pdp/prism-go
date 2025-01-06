@@ -18,12 +18,12 @@ RUN curl -sSL https://crypto.stanford.edu/pbc/files/pbc-0.5.14.tar.gz | tar zx -
 RUN apt -y install \
 	vim
 
-WORKDIR /app
+WORKDIR /opt/prism-go
 
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
-COPY ./go.mod /app/go.mod
-COPY ./go.sum /app/go.sum
+COPY ./go.mod /opt/prism-go/go.mod
+COPY ./go.sum /opt/prism-go/go.sum
 
 RUN go mod download
 

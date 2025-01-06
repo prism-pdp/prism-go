@@ -3,7 +3,7 @@ services:
     build: .
     image: prism/prism-go
     volumes:
-      - .:/app
+      - .:/opt/prism-go
       - go-cache:/root/.cache/go-build
 
 volumes:
