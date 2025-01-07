@@ -1,23 +1,44 @@
 # prism-go
 
-## Description
+*prism-go* is a cryptographic library for Provable Data Possession (PDP).
 
-prism-go is a Go project for prism.
+## Features
 
-## Tips for developers
+- Supports data verification based on PDP
+- Lightweight design using Go
+- Easy setup with Docker
+- Cryptographic support via [the PBC library](https://crypto.stanford.edu/pbc/)
 
-### Go bindings
+## Technologies Used
 
-This project uses Go bindings created in [prism-sol][link:prism-sol].
-If you update solidity codes, you should copy the Go bindings of updated codes to `sol` directory.
+- **Go**: Main programming language
+- **PBC library**: Cryptographic library
+- **PBC Go wrapper**: Go wrapper of the PBC library 
+- **Docker**: Virtualization environement
 
-### Testing
+## Installation
 
-Test codes should be placed in `sol` directory with `_test` suffixed to the filename.
+1. **Install Docker**
+
+Follow the [official guide](https://docs.docker.com/get-docker/) to install Docker.
+
+2. **Clone the repository**
+
+```bash
+git clone https://github.com/prism-pdp/prism-go.git
+```
+
+3. **Build the docker image**
+
+```bash
+make build-img
+```
+
+## Testing
+
 You can run test with following command.
 
 ```sh
 make test
 ```
 
-[link:prism-sol]: https://github.com/prism/prism-sol "prism-sol"
