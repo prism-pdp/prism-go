@@ -1,6 +1,6 @@
 # prism-go
 
-*prism-go* is a cryptographic library for Provable Data Possession (PDP).
+*prism-go* is a cryptographic library for PRISM, which is a Provable Data Possession (PDP) system.
 
 ## Features
 
