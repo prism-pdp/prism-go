@@ -18,17 +18,17 @@
 
 ## Installation
 
-1. **Install Docker**
+### 1. Install Docker
 
 Follow the [official guide](https://docs.docker.com/get-docker/) to install Docker.
 
-2. **Clone the repository**
+### 2. Clone the repository
 
 ```bash
 git clone https://github.com/prism-pdp/prism-go.git
 ```
 
-3. **Build the docker image**
+### 3. Build the docker image
 
 ```bash
 make build-img
