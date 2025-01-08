@@ -4,7 +4,7 @@
 
 ## Features
 
-- Supports data verification based on PDP
+- Supports data verification based on PDP scheme
 - Lightweight design using Go
 - Easy setup with Docker
 - Cryptographic support via [the PBC library](https://crypto.stanford.edu/pbc/)
