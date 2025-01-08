@@ -16,6 +16,12 @@
 - [**PBC Go wrapper**](https://pkg.go.dev/github.com/nik-u/pbc): For Go wrapper of the PBC library 
 - [**Docker**](https://www.docker.com/): For environment virtualization and management
 
+## System Requirements
+
+This project has been tested and is verified to work on **Ubuntu 24.04.01 LTS**.
+We recommend using this version of Ubuntu for the best experience. 
+Other operating systems or versions might require additional setup or may not be supported.
+
 ## Installation
 
 ### 1. Install Docker
