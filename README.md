@@ -11,10 +11,10 @@
 
 ## Technologies Used
 
-- [**Go**](https://go.dev/): Main programming language
-- [**PBC library**](https://crypto.stanford.edu/pbc/): Cryptographic library
-- [**PBC Go wrapper**](https://pkg.go.dev/github.com/nik-u/pbc): Go wrapper of the PBC library 
-- [**Docker**](https://www.docker.com/): Virtualization environement
+- [**Go**](https://go.dev/): For main programming language
+- [**PBC library**](https://crypto.stanford.edu/pbc/): For cryptographic library
+- [**PBC Go wrapper**](https://pkg.go.dev/github.com/nik-u/pbc): For Go wrapper of the PBC library 
+- [**Docker**](https://www.docker.com/): For environment virtualization and management
 
 ## Installation
 
